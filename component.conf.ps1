@@ -1,0 +1,7 @@
+$VersionControl = 'git'
+$Package = 'maven'
+$Build = 'maven'
+$Document = 'none'
+$Test = 'maven'
+$Deploy = 'none'
+$Run = 'none'
