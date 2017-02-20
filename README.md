@@ -1,4 +1,4 @@
-# <img src="https://github.com/pip-benchmark/pip-selenium-ps/raw/master/artifacts/logo.png" alt="Pip.Services Logo" style="max-width:30%"> <br/> Portable Benchmarking Framework in Java
+# <img src="https://github.com/pip-devs/pip-selenium-ps/raw/master/artifacts/logo.png" alt="Pip.Services Logo" style="max-width:30%"> <br/> Portable Benchmarking Framework in Java
 
 This benchmarking framework ported cross multiple languages to obtain comparible performance metrics across different implementations.
 In addition to performance benchmarking, it helps in other types of non-functional testing like load, reliability or concurrency.
