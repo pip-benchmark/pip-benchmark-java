@@ -1,6 +1,6 @@
 package org.pipbenchmark.runner.execution;
 
-import org.pipbenchmark.runner.*;
+import org.pipbenchmark.runner.results.*;
 
 public abstract class BenchmarkMeter {
     private long _lastMeasuredTime;

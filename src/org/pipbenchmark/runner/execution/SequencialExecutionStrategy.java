@@ -2,7 +2,9 @@ package org.pipbenchmark.runner.execution;
 
 import java.util.*;
 
-import org.pipbenchmark.runner.*;
+import org.pipbenchmark.runner.benchmarks.*;
+import org.pipbenchmark.runner.config.*;
+import org.pipbenchmark.runner.results.*;
 
 public class SequencialExecutionStrategy extends ExecutionStrategy {
     private boolean _running = false;
@@ -12,21 +14,23 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
     private double _ticksPerTransaction = 0;
     private List<BenchmarkResult> _results = new ArrayList<BenchmarkResult>();
 
-    public SequencialExecutionStrategy(BenchmarkProcess process, List<BenchmarkInstance> benchmarks) {
-        super(process, benchmarks);
+    public SequencialExecutionStrategy(ConfigurationManager configuration,
+		ExecutionManager process, List<BenchmarkInstance> benchmarks) {
+        
+    	super(configuration, process, benchmarks);
     }
 
     @Override
     public void start() {
-        if (getProcess().getDuration() <= 0) {
-            throw new BenchmarkException("Duration was not set");
+        if (_configuration.getDuration() <= 0) {
+            throw new NullPointerException("Duration was not set");
         }
 
-        if (getProcess().getMeasurementType() == MeasurementType.Peak) {
+        if (_configuration.getMeasurementType() == MeasurementType.Peak) {
             _ticksPerTransaction = 0;
         } else {
-            _ticksPerTransaction = 1000.0 / getProcess().getNominalRate() 
-            	* getProcess().getNumberOfThreads();
+            _ticksPerTransaction = 1000.0 / _configuration.getNominalRate() 
+            	* _configuration.getNumberOfThreads();
         }
 
         _running = true;
@@ -76,7 +80,7 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
 
                     // Wait for set duration (in seconds)
                     try {
-                    	Thread.sleep(getProcess().getDuration() * 1000);
+                    	Thread.sleep(_configuration.getDuration() * 1000);
                     } catch (InterruptedException ex) {
                     	break;
                     }
@@ -103,15 +107,15 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
         synchronized (getSyncRoot()) {
             _runningBenchmark = test;
 
-            _threads = new Thread[getProcess().getNumberOfThreads()];
-            for (int index = 0; index < getProcess().getNumberOfThreads(); index++) {
+            _threads = new Thread[_configuration.getNumberOfThreads()];
+            for (int index = 0; index < _configuration.getNumberOfThreads(); index++) {
                 _threads[index] = new Thread(
                 	new Runnable() {
                 		@Override
                 		public final void run() { performBenchmarking(); }
                 	});
                 _threads[index].setName(String.format("Benchmarking Thread #%d/%d",
-                    index, getProcess().getNumberOfThreads()));
+                    index, _configuration.getNumberOfThreads()));
                 //_threads[index].setPriority(ThreadPriority.Highest);
                 _threads[index].start();
             }
@@ -136,13 +140,13 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
         BenchmarkInstance benchmark = _runningBenchmark;
         long lastExecutedTicks = System.currentTimeMillis();
         long endTicks = System.currentTimeMillis() 
-        	+ getProcess().getDuration() * 1000;
+        	+ _configuration.getDuration() * 1000;
 
         try {
             long currentTicks = System.currentTimeMillis();
 
             while (_running && benchmark == _runningBenchmark && endTicks > currentTicks) {
-                if (getProcess().getMeasurementType() == MeasurementType.Nominal) {
+                if (_configuration.getMeasurementType() == MeasurementType.Nominal) {
                     double ticksToNextTransaction = _ticksPerTransaction
                         - (currentTicks - lastExecutedTicks);
                     

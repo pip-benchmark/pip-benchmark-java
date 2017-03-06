@@ -1,5 +1,7 @@
 package org.pipbenchmark;
 
+import org.pipbenchmark.util.Converter;
+
 public class Parameter {
     private String _name;
     private String _description;
@@ -42,42 +44,42 @@ public class Parameter {
     }
 
     public final boolean getAsBoolean() {
-        return SimpleTypeConverter.stringToBoolean(getValue()); 
+        return Converter.stringToBoolean(getValue()); 
     }
     
     public final void setAsBoolean(boolean value) {
-        setValue(SimpleTypeConverter.booleanToString(value));
+        setValue(Converter.booleanToString(value));
     }
 
     public final int getAsInteger() {
-        return SimpleTypeConverter.stringToInteger(getValue(), 0);
+        return Converter.stringToInteger(getValue(), 0);
     }
     
     public final void setAsInteger(int value) {
-        setValue(SimpleTypeConverter.integerToString(value));
+        setValue(Converter.integerToString(value));
     }
 
     public final long getAsLong() {
-        return SimpleTypeConverter.stringToLong(getValue(), 0); 
+        return Converter.stringToLong(getValue(), 0); 
     }
     
     public final void setAsLong(long value) {
-        setValue(SimpleTypeConverter.longToString(value));
+        setValue(Converter.longToString(value));
     }
 
     public final float getAsFloat() {
-        return SimpleTypeConverter.stringToFloat(getValue(), 0); 
+        return Converter.stringToFloat(getValue(), 0); 
     }
     
     public final void setAsFloat(float value) {
-        setValue(SimpleTypeConverter.floatToString(value));
+        setValue(Converter.floatToString(value));
     }
 
     public final double getAsDouble() {
-        return SimpleTypeConverter.stringToDouble(getValue(), 0); 
+        return Converter.stringToDouble(getValue(), 0); 
     }
     
     public final void setAsDouble(double value) {
-        setValue(SimpleTypeConverter.doubleToString(value));
+        setValue(Converter.doubleToString(value));
     }
 }

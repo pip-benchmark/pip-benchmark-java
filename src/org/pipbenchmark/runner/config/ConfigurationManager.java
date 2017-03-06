@@ -1,131 +1,85 @@
 package org.pipbenchmark.runner.config;
 
-import java.util.*;
-
-import org.pipbenchmark.*;
-import org.pipbenchmark.runner.*;
-
-import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConfigurationManager {
-    private List<Parameter> _parameters = new ArrayList<Parameter>();
-    private BenchmarkRunner _runner;
+    private int _numberOfThreads = 1;
+    private MeasurementType _measurementType = MeasurementType.Peak;
+    private double _nominalRate = 1;
+    private ExecutionType _executionType = ExecutionType.Proportional;
+    private int _duration = 60;
+    private boolean _forceContinue = false;
 
-    public ConfigurationManager(BenchmarkRunner runner) {
-    	_runner = runner;
-    	
-        _parameters.add(new NumberOfThreadsParameter(getRunner().getProcess()));
-        _parameters.add(new MeasurementTypeParameter(getRunner().getProcess()));
-        _parameters.add(new NominalRateParameter(getRunner().getProcess()));
-        _parameters.add(new ExecutionTypeParameter(getRunner().getProcess()));
-        _parameters.add(new DurationParameter(getRunner().getProcess()));
+    private List<IConfigurationListener> _changeListeners = new ArrayList<IConfigurationListener>();
+
+    public ConfigurationManager() { }
+    
+    public int getNumberOfThreads() {
+        return _numberOfThreads; 
+    }
+    
+    public void setNumberOfThreads(int value) {
+        _numberOfThreads = value;
     }
 
-    public BenchmarkRunner getRunner() {
-        return _runner;
+    public MeasurementType getMeasurementType() {
+        return _measurementType;
     }
- 
-    public List<Parameter> getFilteredParameters() {
-        List<Parameter> filteredParameters = new ArrayList<Parameter>();
-        for (Parameter parameter : _parameters) {
-            if (!parameter.getName().endsWith(".Selected") 
-        		&& !parameter.getName().endsWith(".Proportion")
-                && !parameter.getName().startsWith("General.")) {
-                filteredParameters.add(parameter);
-            }
-        }
-        return filteredParameters; 
+    
+    public void setMeasurementType(MeasurementType value) {
+        _measurementType = value; 
     }
 
-    public List<Parameter> getAllParameters() {
-        return _parameters;
+    public double getNominalRate() {
+        return _nominalRate; 
+    }
+    
+    public void setNominalRate(double value) {
+        _nominalRate = value;
     }
 
-    public void loadConfigurationFromFile(String fileName) throws IOException {
-        Properties properties = new Properties();
-        FileInputStream stream = new FileInputStream(fileName);
-        try {
-            properties.loadFromStream(stream);
-            for (Map.Entry<String, String> pair : properties.entrySet()) {
-                setParameterValue(pair.getKey(), pair.getValue());
-            }
-        } finally {
-        	stream.close();
-        }
-
-        getRunner().notifyConfigurationUpdated();
+    public ExecutionType getExecutionType() {
+        return _executionType; 
+    }
+    
+    public void setExecutionType(ExecutionType value) {
+        _executionType = value;
     }
 
-    private void setParameterValue(String parameterName, String value) {
-        for (Parameter parameter : _parameters) {
-            if (parameter.getName().equals(parameterName)) {
-                parameter.setValue(value);
-            }
-        }
+    public int getDuration() {
+        return _duration; 
     }
-
-    public void saveConfigurationToFile(String fileName) throws IOException {
-        Properties properties = new Properties();
-        FileOutputStream stream = new FileOutputStream(fileName);
-        try {
-            for (Parameter parameter : _parameters) {
-                properties.put(parameter.getName(), parameter.getValue());
-            }
-            properties.saveToStream(stream);
-        } finally {
-        	stream.close();
-        }
+    
+    public void setDuration(int value) {
+        _duration = value;
     }
-
-    public void createParametersForSuite(BenchmarkSuiteInstance suite) {
-        // Create benchmark related parameters
-        for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
-            Parameter benchmarkSelectedParameter
-                = new BenchmarkSelectedParameter(benchmark);
-            _parameters.add(benchmarkSelectedParameter);
-
-            Parameter benchmarkProportionParameter
-                = new BenchmarkProportionParameter(benchmark);
-            _parameters.add(benchmarkProportionParameter);
-        }
-
-        // Create indirect suite parameters
-        for (Parameter originalParameter : suite.getParameters().values()) {
-            Parameter indirectParameter
-                = new IndirectSuiteParameter(suite, originalParameter);
-            _parameters.add(indirectParameter);
-        }
-
-        getRunner().notifyConfigurationUpdated();
+    
+    public boolean isForceContinue() {
+    	return _forceContinue;
     }
-
-    public void removeParametersForSuite(BenchmarkSuiteInstance suite) {
-        String parameterNamePrefix = suite.getName() + ".";
-        for (int index = _parameters.size() - 1; index >= 0; index--) {
-            Parameter parameter = _parameters.get(index);
-            // Remove parameter from the list
-            if (parameter.getName().startsWith(parameterNamePrefix)) {
-                _parameters.remove(index);
-            }
-        }
-
-        getRunner().notifyConfigurationUpdated();
+    
+    public void setForceContinue(boolean value) {
+    	_forceContinue = value;
     }
-
-    public void setConfigurationToDefault() {
-        for (Parameter parameter : _parameters) {
-            if (parameter instanceof IndirectSuiteParameter) {
-                IndirectSuiteParameter indirectParameter = (IndirectSuiteParameter)parameter;
-                indirectParameter.setValue(indirectParameter.getDefaultValue());
-            }
-        }
+    
+    public void addChangeListener(IConfigurationListener listener) {
+    	_changeListeners.add(listener);
     }
-
-    public void setConfiguration(Map<String, String> parameters) {
-        for (Parameter parameter : _parameters) {
-            if (parameters.containsKey(parameter.getName()))
-                parameter.setValue(parameters.get(parameter.getName()));
-        }
+    
+    public void removeChangeListener(IConfigurationListener listener) {
+    	_changeListeners.remove(listener);
     }
- 
+    
+    public void notifyChanged() {
+    	for (int index = 0; index < _changeListeners.size(); index++) {
+    		try {
+    			IConfigurationListener listener = _changeListeners.get(index);
+    			listener.onConfigurationChanged();
+    		} catch (Exception ex) {
+    			// Ignore and send a message to the next listener.
+    		}
+    	}
+    }
+    
 }

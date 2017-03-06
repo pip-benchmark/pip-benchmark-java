@@ -3,187 +3,132 @@ package org.pipbenchmark.runner;
 import java.util.*;
 
 import org.pipbenchmark.*;
-import org.pipbenchmark.runner.config.*;
+import org.pipbenchmark.runner.benchmarks.BenchmarkInstance;
+import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
+import org.pipbenchmark.runner.benchmarks.BenchmarksManager;
+import org.pipbenchmark.runner.config.ConfigurationManager;
 import org.pipbenchmark.runner.environment.*;
 import org.pipbenchmark.runner.execution.*;
-import org.pipbenchmark.runner.report.*;
+import org.pipbenchmark.runner.params.*;
+import org.pipbenchmark.runner.reports.*;
+import org.pipbenchmark.runner.results.BenchmarkResult;
+import org.pipbenchmark.runner.results.IMessageListener;
+import org.pipbenchmark.runner.results.IResultListener;
 
 import java.io.*;
 
 public class BenchmarkRunner {
-    private BenchmarkSuiteManager _suiteManager;
-    private ConfigurationManager _configurationManager;
-    private BenchmarkProcess _process;
-    private ReportGenerator _reportGenerator;
-    private EnvironmentState _environmentState;
+	private ConfigurationManager _configuration;
+    private BenchmarksManager _benchmarks;
+    private ParametersManager _parameters;
+    private ExecutionManager _execution;
+    private ReportGenerator _report;
+    private EnvironmentManager _environment;
 
     private List<IResultListener> _resultUpdatedListeners = new ArrayList<IResultListener>();
-    private List<IConfigurationListener> _configurationUpdatedListeners = new ArrayList<IConfigurationListener>();
     private List<IMessageListener> _messageSentListeners = new ArrayList<IMessageListener>();
     private List<IMessageListener> _errorReportedListeners = new ArrayList<IMessageListener>();
     
     public BenchmarkRunner() {
-        _suiteManager = new BenchmarkSuiteManager(this);
-        _process = new BenchmarkProcess(this);
-        _configurationManager = new ConfigurationManager(this);
-        _reportGenerator = new ReportGenerator(this);
-        _environmentState = new EnvironmentState(this);
+    	_configuration = new ConfigurationManager();
+        _parameters = new ParametersManager(_configuration);
+        _benchmarks = new BenchmarksManager(this);
+        _execution = new ExecutionManager(_configuration, this);
+        _report = new ReportGenerator(this);
+        _environment = new EnvironmentManager(this);
     }
 
-    public ConfigurationManager getConfigurationManager() {
-        return _configurationManager;
+    public ConfigurationManager getConfiguration() {
+    	return _configuration;
+    }
+    
+    public ParametersManager getParameters() {
+        return _parameters;
     }
 
-    public BenchmarkProcess getProcess() {
-        return _process;
+    public ExecutionManager getExecution() {
+        return _execution;
     }
 
-    public BenchmarkSuiteManager getSuiteManager() {
-        return _suiteManager;
+    public BenchmarksManager getBenchmarks() {
+        return _benchmarks;
     }
 
-    public ReportGenerator getReportGenerator() {
-        return _reportGenerator;
+    public ReportGenerator getReport() {
+        return _report;
     }
 
-    public EnvironmentState getEnvironmentState() {
-        return _environmentState;
+    public EnvironmentManager getEnvironment() {
+        return _environment;
     }
 
     public List<BenchmarkSuiteInstance> getSuiteInstances() {
-        return getSuiteManager().getSuites();
+        return getBenchmarks().getSuites();
     }
 
     public void addSuiteFromClass(String className)
     	throws ClassNotFoundException, InstantiationException {
-    	getSuiteManager().addSuiteFromClass(className);
+    	getBenchmarks().addSuiteFromClass(className);
     }
 
     public void addSuite(BenchmarkSuite suite) {
-    	getSuiteManager().addSuite(suite);
+    	getBenchmarks().addSuite(suite);
     }
 
     public void addSuite(BenchmarkSuiteInstance suite) {
-    	getSuiteManager().addSuite(suite);
+    	getBenchmarks().addSuite(suite);
     }
     
     public void loadSuitesFromLibrary(String fileName) throws IOException {
-        getSuiteManager().loadSuitesFromLibrary(fileName);
+        getBenchmarks().loadSuitesFromLibrary(fileName);
     }
 
     public void unloadSuite(String suiteName) {
-        getSuiteManager().removeSuite(suiteName);
+        getBenchmarks().removeSuite(suiteName);
     }
 
     public void unloadAllSuites() {
-        getSuiteManager().removeAllSuites();
+        getBenchmarks().removeAllSuites();
     }
 
     public void unloadSuite(BenchmarkSuiteInstance suite) {
-    	getSuiteManager().removeSuite(suite);
+    	getBenchmarks().removeSuite(suite);
     }
 
     public void selectAllBenchmarks() {
-        getSuiteManager().selectAllBenchmarks();
+        getBenchmarks().selectAllBenchmarks();
     }
 
     public void selectBenchmarksByName(String ...benchmarkNames) {
-       getSuiteManager().selectBenchmarksByName(benchmarkNames);
+       getBenchmarks().selectBenchmarksByName(benchmarkNames);
     }
 
     public void selectBenchmarks(BenchmarkInstance ...benchmarks) {
-        getSuiteManager().selectBenchmarks(benchmarks);
+        getBenchmarks().selectBenchmarks(benchmarks);
     }
     
-    public List<Parameter> getConfiguration() {
-        return getConfigurationManager().getFilteredParameters();
+    public List<Parameter> getConfigurationX() {
+        return getParameters().getFilteredParameters();
     }
 
     public void loadConfigurationFromFile(String fileName) throws IOException {
-        getConfigurationManager().loadConfigurationFromFile(fileName);
+        getParameters().loadConfigurationFromFile(fileName);
     }
 
     public void saveConfigurationToFile(String fileName) throws IOException {
-        getConfigurationManager().saveConfigurationToFile(fileName);
+        getParameters().saveConfigurationToFile(fileName);
     }
 
     public void setConfigurationToDefault() {
-        getConfigurationManager().setConfigurationToDefault();
+        getParameters().setConfigurationToDefault();
     }
 
     public void setConfiguration(Map<String, String> parameters) {
-        getConfigurationManager().setConfiguration(parameters);
-    }
-
-    public int getNumberOfThreads() {
-        return getProcess().getNumberOfThreads(); 
-    }
-    
-    public void setNumberOfThreads(int value) {
-        getProcess().setNumberOfThreads(value);
-    }
-
-    public MeasurementType getMeasurementType() {
-        return getProcess().getMeasurementType(); 
-    }
-    
-    public void setMeasurementType(MeasurementType value) {
-        getProcess().setMeasurementType(value);
-    }
-
-    public double getNominalRate() {
-        return getProcess().getNominalRate(); 
-    }
-    
-    public void setNominalRate(double value) {
-        getProcess().setNominalRate(value);
-    }
-
-    public ExecutionType getExecutionType() {
-        return getProcess().getExecutionType(); 
-    }
-    
-    public void setExecutionType(ExecutionType value) {
-        getProcess().setExecutionType(value);
-    }
-
-    public int getDuration() {
-        return getProcess().getDuration(); 
-    }
-    
-    public void setDuration(int value) {
-        getProcess().setDuration(value);
-    }
-    
-    public boolean isForceContinue() {
-    	return getProcess().isForceContinue();
-    }
-    
-    public void setForceContinue(boolean value) {
-    	getProcess().setForceContinue(value);
+        getParameters().setConfiguration(parameters);
     }
 
     public List<BenchmarkResult> getResults() {
-        return getProcess().getResults();
-    }
-
-    public void addConfigurationUpdatedListener(IConfigurationListener listener) {
-    	_configurationUpdatedListeners.add(listener);
-    }
-    
-    public void removeConfigurationUpdatedListener(IConfigurationListener listener) {
-    	_configurationUpdatedListeners.remove(listener);
-    }
-    
-    public void notifyConfigurationUpdated() {
-    	for (int index = 0; index < _configurationUpdatedListeners.size(); index++) {
-    		try {
-    			IConfigurationListener listener = _configurationUpdatedListeners.get(index);
-    			listener.onConfigurationUpdated();
-    		} catch (Exception ex) {
-    			// Ignore and send a message to the next listener.
-    		}
-    	}
+        return getExecution().getResults();
     }
 
     public void addResultUpdatedListener(IResultListener listener) {
@@ -244,46 +189,46 @@ public class BenchmarkRunner {
     }
     
     public boolean isRunning() {
-        return getProcess().isRunning();
+        return getExecution().isRunning();
     }
 
     public void start() {
-        getProcess().start(getSuiteManager().getSuites());
+        getExecution().start(getBenchmarks().getSuites());
     }
 
     public void stop() {
-        getProcess().stop();
+        getExecution().stop();
     }
 
     public String generateReport() {
-        return getReportGenerator().generateReport();
+        return getReport().generateReport();
     }
 
     public void saveReportToFile(String fileName) throws IOException {
-        getReportGenerator().saveReportToFile(fileName);
+        getReport().saveReportToFile(fileName);
     }
 
     public Map<String, String> getSystemInformation() {
-        return getEnvironmentState().getSystemInformation();
+        return getEnvironment().getSystemInformation();
     }
 
     public double getCpuBenchmark() {
-        return getEnvironmentState().getCpuBenchmark();
+        return getEnvironment().getCpuBenchmark();
     }
 
     public double getVideoBenchmark() {
-        return getEnvironmentState().getVideoBenchmark();
+        return getEnvironment().getVideoBenchmark();
     }
 
     public double getDiskBenchmark() {
-        return getEnvironmentState().getDiskBenchmark();
+        return getEnvironment().getDiskBenchmark();
     }
 
     public void benchmarkEnvironment(boolean cpu, boolean disk, boolean video) {
-        getEnvironmentState().benchmarkEnvironment(cpu, disk, video);
+        getEnvironment().benchmarkEnvironment(cpu, disk, video);
     }
 
     public void benchmarkEnvironment() {
-        getEnvironmentState().benchmarkEnvironment(true, true, true);
+        getEnvironment().benchmarkEnvironment(true, true, true);
     }
 }

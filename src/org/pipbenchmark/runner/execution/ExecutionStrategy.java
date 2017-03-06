@@ -2,15 +2,18 @@ package org.pipbenchmark.runner.execution;
 
 import java.util.*;
 
-import org.pipbenchmark.runner.*;
+import org.pipbenchmark.runner.benchmarks.*;
+import org.pipbenchmark.runner.config.*;
+import org.pipbenchmark.runner.results.*;
 
 public abstract class ExecutionStrategy {
     private final static int MaxErrorCount = 1000;
 
-    private final Object _syncRoot = new Object();
-    private BenchmarkProcess _process;
-    private List<BenchmarkInstance> _benchmarks;
-    private List<BenchmarkSuiteInstance> _suites;
+    protected ConfigurationManager _configuration;
+    protected final Object _syncRoot = new Object();
+    protected ExecutionManager _process;
+    protected List<BenchmarkInstance> _benchmarks;
+    protected List<BenchmarkSuiteInstance> _suites;
 
     private double _transactionCounter = 0;
 
@@ -20,8 +23,11 @@ public abstract class ExecutionStrategy {
     private CpuLoadMeter _cpuLoadMeter;
     private MemoryUsageMeter _memoryUsageMeter;
 
-    protected ExecutionStrategy(BenchmarkProcess parentProcess, List<BenchmarkInstance> benchmarks) {
-        _process = parentProcess;
+    protected ExecutionStrategy(ConfigurationManager configuration,
+		ExecutionManager parentProcess, List<BenchmarkInstance> benchmarks) {
+        
+    	_configuration = configuration;
+    	_process = parentProcess;
         _benchmarks = benchmarks;
         _suites = getAllSuitesFromBenchmarks(benchmarks);
 
@@ -44,7 +50,7 @@ public abstract class ExecutionStrategy {
         return _syncRoot;
     }
 
-    public BenchmarkProcess getProcess() {
+    public ExecutionManager getProcess() {
         return _process;
     }
 
@@ -126,7 +132,7 @@ public abstract class ExecutionStrategy {
         } catch (Exception ex) {
         	if (ex instanceof InterruptedException) {
         		// Ignore...
-        	} else if (_process.isForceContinue()) {
+        	} else if (_configuration.isForceContinue()) {
                 reportError(ex.getMessage());
         	} else
                 throw ex;

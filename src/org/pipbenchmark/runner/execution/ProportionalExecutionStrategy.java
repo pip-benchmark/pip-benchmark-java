@@ -2,15 +2,19 @@ package org.pipbenchmark.runner.execution;
 
 import java.util.*;
 
-import org.pipbenchmark.runner.*;
+import org.pipbenchmark.runner.benchmarks.*;
+import org.pipbenchmark.runner.config.*;
+import org.pipbenchmark.runner.results.*;
 
 public class ProportionalExecutionStrategy extends ExecutionStrategy {
     private boolean _running = false;
     private Thread[] _threads = null;
     private double _ticksPerTransaction = 0;
 
-    public ProportionalExecutionStrategy(BenchmarkProcess parentProcess, List<BenchmarkInstance> benchmarks) {
-        super(parentProcess, benchmarks);
+    public ProportionalExecutionStrategy(ConfigurationManager configuration,
+		ExecutionManager parentProcess, List<BenchmarkInstance> benchmarks) {
+        
+    	super(configuration, parentProcess, benchmarks);
         calculateExecutionTriggers();
     }
 
@@ -38,11 +42,11 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
     public void start() {
         initializeMeasurements();
 
-        if (getProcess().getMeasurementType() == MeasurementType.Peak)
+        if (_configuration.getMeasurementType() == MeasurementType.Peak)
             _ticksPerTransaction = 0;
         else
-            _ticksPerTransaction = 1000.0 / getProcess().getNominalRate() 
-            	* getProcess().getNumberOfThreads();
+            _ticksPerTransaction = 1000.0 / _configuration.getNominalRate() 
+            	* _configuration.getNumberOfThreads();
 
         // Initialize test suites
         for (BenchmarkSuiteInstance suite : getSuites())
@@ -51,15 +55,15 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
         _running = true;
 
         // Start benchmarking threads
-        _threads = new Thread[getProcess().getNumberOfThreads()];
-        for (int index = 0; index < getProcess().getNumberOfThreads(); index++) {
+        _threads = new Thread[_configuration.getNumberOfThreads()];
+        for (int index = 0; index < _configuration.getNumberOfThreads(); index++) {
             _threads[index] = new Thread(
             	new Runnable() {
             		@Override
             		public final void run() { performBenchmarking(); }
             	});
             _threads[index].setName(String.format("Benchmarking Thread #%d/%d", 
-                index, getProcess().getNumberOfThreads()));
+                index, _configuration.getNumberOfThreads()));
             //_threads[index].setPriority(ThreadPriority.Highest);
             _threads[index].start();
         }
@@ -104,7 +108,7 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
 
         try {
             while (_running) {
-                if (getProcess().getMeasurementType() == MeasurementType.Nominal) {
+                if (_configuration.getMeasurementType() == MeasurementType.Nominal) {
                     double ticksToNextTransaction = _ticksPerTransaction
                         - (System.currentTimeMillis() - lastExecutedTicks);
                     

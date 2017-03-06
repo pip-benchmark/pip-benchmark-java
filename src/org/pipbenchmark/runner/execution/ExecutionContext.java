@@ -3,7 +3,7 @@ package org.pipbenchmark.runner.execution;
 import java.util.*;
 
 import org.pipbenchmark.*;
-import org.pipbenchmark.runner.BenchmarkSuiteInstance;
+import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
 
 class ExecutionContext implements IExecutionContext {
     private ExecutionStrategy _strategy;
