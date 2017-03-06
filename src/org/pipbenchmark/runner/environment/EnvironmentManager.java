@@ -7,7 +7,6 @@ import org.pipbenchmark.runner.*;
 import org.pipbenchmark.runner.benchmarks.*;
 import org.pipbenchmark.runner.config.*;
 import org.pipbenchmark.runner.execution.*;
-import org.pipbenchmark.runner.params.*;
 
 public class EnvironmentManager extends ExecutionManager {
     private final static int Duration = 5;
@@ -63,7 +62,7 @@ public class EnvironmentManager extends ExecutionManager {
     }
 
     private void loadSystemBenchmarks() throws IOException {
-        BenchmarkingProperties properties = new BenchmarkingProperties();
+        EnvironmentProperties properties = new EnvironmentProperties();
         properties.load();
 
         _cpuBenchmark = properties.getAsDouble("System.CpuBenchmark", 0);
@@ -72,7 +71,7 @@ public class EnvironmentManager extends ExecutionManager {
     }
 
     private void saveSystemBenchmarks() throws IOException {
-        BenchmarkingProperties properties = new BenchmarkingProperties();
+        EnvironmentProperties properties = new EnvironmentProperties();
 
         properties.setAsDouble("System.CpuBenchmark", _cpuBenchmark);
         properties.setAsDouble("System.VideoBenchmark", _videoBenchmark);

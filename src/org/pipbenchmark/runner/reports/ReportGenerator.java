@@ -249,7 +249,7 @@ public class ReportGenerator {
         builder.append("Parameters:");
         builder.append(NewLine);
         for (Parameter parameter : getRunner().getParameters()
-        	.getAllParameters()) {
+        	.getAll()) {
             builder.append(String.format("  %s=%s", parameter.getName(), parameter.getValue()));
             builder.append(NewLine);
         }

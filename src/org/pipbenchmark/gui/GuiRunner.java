@@ -24,7 +24,7 @@ public class GuiRunner {
             
             // Load configuration
             if (args.getConfigurationFile() != null) {
-                runner.loadConfigurationFromFile(args.getConfigurationFile());
+                runner.getParameters().loadFromFile(args.getConfigurationFile());
             }
 
             // Configure benchmarking

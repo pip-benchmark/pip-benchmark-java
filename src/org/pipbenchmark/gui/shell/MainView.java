@@ -4,11 +4,11 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
-import org.pipbenchmark.gui.config.*;
+import org.pipbenchmark.gui.benchmarks.*;
 import org.pipbenchmark.gui.environment.*;
 import org.pipbenchmark.gui.execution.*;
-import org.pipbenchmark.gui.initialization.*;
-import org.pipbenchmark.gui.result.*;
+import org.pipbenchmark.gui.params.*;
+import org.pipbenchmark.gui.results.*;
 
 public class MainView implements IMainView {
 	private IMainViewListener _listener = null;
@@ -16,7 +16,7 @@ public class MainView implements IMainView {
 	private TabFolder _content;
 	private Label _statusLabel;
 	private InitializationView _initializationView;
-	private ConfigurationView _configurationView;
+	private ParametersView _configurationView;
 	private ExecutionView _executionView;
 	private ResultsView _resultsView;
 	private EnvironmentView _environmentView;
@@ -227,7 +227,7 @@ public class MainView implements IMainView {
 		
 		TabItem configurationTab = new TabItem(_content, SWT.NONE);
 		configurationTab.setText("&Configuration  ");
-		_configurationView = new ConfigurationView(_content);
+		_configurationView = new ParametersView(_content);
 		configurationTab.setControl(_configurationView);
 		
 		TabItem executionTab = new TabItem(_content, SWT.NONE);
@@ -313,7 +313,7 @@ public class MainView implements IMainView {
     	return _initializationView;
     }
     
-    public IConfigurationView getConfigurationView() {
+    public IParametersView getConfigurationView() {
     	return _configurationView;
     }
     

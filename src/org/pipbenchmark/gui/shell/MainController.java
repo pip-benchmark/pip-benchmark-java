@@ -3,18 +3,18 @@ package org.pipbenchmark.gui.shell;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.pipbenchmark.gui.config.*;
+import org.pipbenchmark.gui.benchmarks.*;
 import org.pipbenchmark.gui.environment.*;
 import org.pipbenchmark.gui.execution.*;
-import org.pipbenchmark.gui.initialization.*;
-import org.pipbenchmark.gui.result.*;
+import org.pipbenchmark.gui.params.*;
+import org.pipbenchmark.gui.results.*;
 import org.pipbenchmark.runner.*;
 
 public class MainController implements IMainViewListener {
     private IMainView _view;
     private BenchmarkRunner _model;
     private InitializationController _initializationController;
-    private ConfigurationController _configurationController;
+    private ParametersController _configurationController;
     private ExecutionController _executionController;
     private ResultsController _resultsController;
     private EnvironmentController _environmentController;
@@ -30,7 +30,7 @@ public class MainController implements IMainViewListener {
     private void initializeControllers() {
         _initializationController = new InitializationController(
         	this, _view.getInitializationView());
-        _configurationController = new ConfigurationController(this, _view.getConfigurationView());
+        _configurationController = new ParametersController(this, _view.getConfigurationView());
         _executionController = new ExecutionController(this, _view.getExecutionView());
         _resultsController = new ResultsController(this, _view.getResultsView());
         _environmentController = new EnvironmentController(this, _view.getEnvironmentView());
@@ -48,7 +48,7 @@ public class MainController implements IMainViewListener {
         return _initializationController;
     }
 
-    public ConfigurationController getConfigurationController() {
+    public ParametersController getConfigurationController() {
         return _configurationController;
     }
 
@@ -81,12 +81,12 @@ public class MainController implements IMainViewListener {
 
     public void loadConfigurationClicked() {
         _view.setSelectedView("Configuration");
-        _configurationController.loadConfiguration();
+        _configurationController.loadData();
     }
 
     public void saveConfigurationClicked() {
         _view.setSelectedView("Configuration");
-        _configurationController.saveConfiguration();
+        _configurationController.saveData();
     }
 
     public void startBenchmarkingClicked() {

@@ -37,11 +37,11 @@ public class ConsoleRunner {
             
             // Load configuration
             if (args.getConfigurationFile() != null)
-                runner.loadConfigurationFromFile(args.getConfigurationFile());
+                runner.getParameters().loadFromFile(args.getConfigurationFile());
 
             // Set parameters
             if (args.getParameters().size() > 0)
-            	runner.setConfiguration(args.getParameters());
+            	runner.getParameters().set(args.getParameters());
 
             // Select benchmarks
             if (args.getBenchmarks().size() == 0)
@@ -123,7 +123,7 @@ public class ConsoleRunner {
         System.out.println();
         System.out.println("Configuration Parameters:");
 
-        for (Parameter parameter : runner.getParameters().getFilteredParameters()) {
+        for (Parameter parameter : runner.getParameters().getUserDefined()) {
             String defaultValue = parameter.getDefaultValue();
             defaultValue = defaultValue == null || defaultValue.length() == 0 
             		? "" : " (Default: " + defaultValue + ")";

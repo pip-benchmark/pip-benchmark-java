@@ -1,7 +1,6 @@
 package org.pipbenchmark.runner.config;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ConfigurationManager {
     private int _numberOfThreads = 1;

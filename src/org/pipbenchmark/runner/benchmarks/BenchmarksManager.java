@@ -117,7 +117,7 @@ public class BenchmarksManager {
     public void addSuite(BenchmarkSuiteInstance suite) {
         getRunner().getExecution().stop();
     	_suites.add(suite);
-        getRunner().getParameters().createParametersForSuite(suite);
+        getRunner().getParameters().addSuite(suite);
     }
     
     public void loadSuitesFromLibrary(String fileName) throws IOException {
@@ -142,7 +142,7 @@ public class BenchmarksManager {
         				if (BenchmarkSuiteInstance.class.isAssignableFrom(type)) {
         					BenchmarkSuiteInstance suite = (BenchmarkSuiteInstance) type.newInstance();
         					_suites.add(suite);
-        	                getRunner().getParameters().createParametersForSuite(suite);
+        	                getRunner().getParameters().addSuite(suite);
         				}
         			} catch (Exception ex1) {
         				continue;
@@ -168,7 +168,7 @@ public class BenchmarksManager {
         getRunner().getExecution().stop();
         BenchmarkSuiteInstance suite = findSuite(suiteName);
         if (suite != null) {
-            getRunner().getParameters().removeParametersForSuite(suite);
+            getRunner().getParameters().removeSuite(suite);
             _suites.remove(suite);
         }
     }
@@ -184,7 +184,7 @@ public class BenchmarksManager {
     
     public void removeSuite(BenchmarkSuiteInstance suite) {
         getRunner().getExecution().stop();
-        getRunner().getParameters().removeParametersForSuite(suite);
+        getRunner().getParameters().removeSuite(suite);
     	_suites.remove(suite);
     }
  
@@ -192,7 +192,7 @@ public class BenchmarksManager {
         getRunner().getExecution().stop();
 
         for (BenchmarkSuiteInstance suite : _suites)
-            getRunner().getParameters().removeParametersForSuite(suite);
+            getRunner().getParameters().removeSuite(suite);
         
         _suites.clear();
     }

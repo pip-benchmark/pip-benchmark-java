@@ -106,26 +106,6 @@ public class BenchmarkRunner {
     public void selectBenchmarks(BenchmarkInstance ...benchmarks) {
         getBenchmarks().selectBenchmarks(benchmarks);
     }
-    
-    public List<Parameter> getConfigurationX() {
-        return getParameters().getFilteredParameters();
-    }
-
-    public void loadConfigurationFromFile(String fileName) throws IOException {
-        getParameters().loadConfigurationFromFile(fileName);
-    }
-
-    public void saveConfigurationToFile(String fileName) throws IOException {
-        getParameters().saveConfigurationToFile(fileName);
-    }
-
-    public void setConfigurationToDefault() {
-        getParameters().setConfigurationToDefault();
-    }
-
-    public void setConfiguration(Map<String, String> parameters) {
-        getParameters().setConfiguration(parameters);
-    }
 
     public List<BenchmarkResult> getResults() {
         return getExecution().getResults();

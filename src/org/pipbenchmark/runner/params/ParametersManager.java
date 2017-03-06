@@ -23,29 +23,33 @@ public class ParametersManager {
         _parameters.add(new DurationParameter(configuration));
     }
  
-    public List<Parameter> getFilteredParameters() {
-        List<Parameter> filteredParameters = new ArrayList<Parameter>();
+    public List<Parameter> getUserDefined() {
+        List<Parameter> parameters = new ArrayList<Parameter>();
         for (Parameter parameter : _parameters) {
             if (!parameter.getName().endsWith(".Selected") 
         		&& !parameter.getName().endsWith(".Proportion")
                 && !parameter.getName().startsWith("General.")) {
-                filteredParameters.add(parameter);
+                parameters.add(parameter);
             }
         }
-        return filteredParameters; 
+        return parameters; 
     }
 
-    public List<Parameter> getAllParameters() {
+    public List<Parameter> getAll() {
         return _parameters;
     }
 
-    public void loadConfigurationFromFile(String fileName) throws IOException {
+    public void loadFromFile(String path) throws IOException {
         Properties properties = new Properties();
-        FileInputStream stream = new FileInputStream(fileName);
+        FileInputStream stream = new FileInputStream(path);
         try {
             properties.loadFromStream(stream);
             for (Map.Entry<String, String> pair : properties.entrySet()) {
-                setParameterValue(pair.getKey(), pair.getValue());
+                for (Parameter parameter : _parameters) {
+                    if (parameter.getName().equals(pair.getKey())) {
+                        parameter.setValue(pair.getValue());
+                    }
+                }
             }
         } finally {
         	stream.close();
@@ -54,17 +58,9 @@ public class ParametersManager {
         _configuration.notifyChanged();
     }
 
-    private void setParameterValue(String parameterName, String value) {
-        for (Parameter parameter : _parameters) {
-            if (parameter.getName().equals(parameterName)) {
-                parameter.setValue(value);
-            }
-        }
-    }
-
-    public void saveConfigurationToFile(String fileName) throws IOException {
+    public void saveToFile(String path) throws IOException {
         Properties properties = new Properties();
-        FileOutputStream stream = new FileOutputStream(fileName);
+        FileOutputStream stream = new FileOutputStream(path);
         try {
             for (Parameter parameter : _parameters) {
                 properties.put(parameter.getName(), parameter.getValue());
@@ -75,7 +71,7 @@ public class ParametersManager {
         }
     }
 
-    public void createParametersForSuite(BenchmarkSuiteInstance suite) {
+    public void addSuite(BenchmarkSuiteInstance suite) {
         // Create benchmark related parameters
         for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             Parameter benchmarkSelectedParameter
@@ -89,16 +85,16 @@ public class ParametersManager {
 
         // Create indirect suite parameters
         for (Parameter originalParameter : suite.getParameters().values()) {
-            Parameter indirectParameter
-                = new BenchmarkSuiteParameter(suite, originalParameter);
-            _parameters.add(indirectParameter);
+            Parameter parameter = new BenchmarkSuiteParameter(suite, originalParameter);
+            _parameters.add(parameter);
         }
 
         _configuration.notifyChanged();
     }
 
-    public void removeParametersForSuite(BenchmarkSuiteInstance suite) {
+    public void removeSuite(BenchmarkSuiteInstance suite) {
         String parameterNamePrefix = suite.getName() + ".";
+        
         for (int index = _parameters.size() - 1; index >= 0; index--) {
             Parameter parameter = _parameters.get(index);
             // Remove parameter from the list
@@ -110,18 +106,18 @@ public class ParametersManager {
         _configuration.notifyChanged();
     }
 
-    public void setConfigurationToDefault() {
+    public void setToDefault() {
         for (Parameter parameter : _parameters) {
             if (parameter instanceof BenchmarkSuiteParameter) {
-                BenchmarkSuiteParameter indirectParameter = (BenchmarkSuiteParameter)parameter;
-                indirectParameter.setValue(indirectParameter.getDefaultValue());
+                BenchmarkSuiteParameter suiteParameter = (BenchmarkSuiteParameter)parameter;
+                suiteParameter.setValue(suiteParameter.getDefaultValue());
             }
         }
 
         _configuration.notifyChanged();
     }
 
-    public void setConfiguration(Map<String, String> parameters) {
+    public void set(Map<String, String> parameters) {
         for (Parameter parameter : _parameters) {
             if (parameters.containsKey(parameter.getName()))
                 parameter.setValue(parameters.get(parameter.getName()));

@@ -1,11 +1,11 @@
 package org.pipbenchmark.gui.shell;
 
 import org.eclipse.swt.widgets.*;
-import org.pipbenchmark.gui.config.*;
+import org.pipbenchmark.gui.benchmarks.*;
 import org.pipbenchmark.gui.environment.*;
 import org.pipbenchmark.gui.execution.*;
-import org.pipbenchmark.gui.initialization.*;
-import org.pipbenchmark.gui.result.*;
+import org.pipbenchmark.gui.params.*;
+import org.pipbenchmark.gui.results.*;
 
 public interface IMainView {
     Shell getHandler();
@@ -14,7 +14,7 @@ public interface IMainView {
     void setSelectedView(String viewName);
     
     IInitializationView getInitializationView();
-    IConfigurationView getConfigurationView();
+    IParametersView getConfigurationView();
     IExecutionView getExecutionView();
     IResultsView getResultsView();
     IEnvironmentView getEnvironmentView();

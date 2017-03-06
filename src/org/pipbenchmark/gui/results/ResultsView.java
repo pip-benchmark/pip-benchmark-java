@@ -1,4 +1,4 @@
-package org.pipbenchmark.gui.result;
+package org.pipbenchmark.gui.results;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.*;

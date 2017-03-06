@@ -1,4 +1,4 @@
-package org.pipbenchmark.gui.result;
+package org.pipbenchmark.gui.results;
 
 public interface IResultsViewListener {
     void saveReportClicked();

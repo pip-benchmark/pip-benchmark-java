@@ -1,4 +1,4 @@
-package org.pipbenchmark.gui.initialization;
+package org.pipbenchmark.gui.benchmarks;
 
 import java.io.*;
 import java.util.*;

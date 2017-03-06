@@ -1,4 +1,4 @@
-package org.pipbenchmark.gui.config;
+package org.pipbenchmark.gui.params;
 
 import java.util.List;
 
@@ -10,13 +10,13 @@ import org.eclipse.swt.widgets.*;
 import org.pipbenchmark.*;
 import org.eclipse.jface.viewers.*;
 
-public class ConfigurationView extends Composite implements IConfigurationView {
-	private IConfigurationViewListener _listener = null;
-	private List<Parameter> _configurationParameters;
-	private Table _configurationParametersTable;
-	private TableViewer _configurationParametersTableViewer;
+public class ParametersView extends Composite implements IParametersView {
+	private IParametersViewListener _listener = null;
+	private List<Parameter> _parameters;
+	private Table _parametersTable;
+	private TableViewer _parametersTableViewer;
 	
-	public ConfigurationView(Composite parent) {
+	public ParametersView(Composite parent) {
 		super(parent, SWT.NONE);
 		
 		initializeComponent();
@@ -52,7 +52,7 @@ public class ConfigurationView extends Composite implements IConfigurationView {
 		saveButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent args) {
 				if (_listener != null) {
-					_listener.saveConfigurationClicked();
+					_listener.saveToFileClicked();
 				}
 			}
 		});
@@ -67,7 +67,7 @@ public class ConfigurationView extends Composite implements IConfigurationView {
 		loadButton.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent args) {
 				if (_listener != null) {
-					_listener.loadConfigurationClicked();
+					_listener.loadFromFileClicked();
 				}
 			}
 		});
@@ -77,36 +77,36 @@ public class ConfigurationView extends Composite implements IConfigurationView {
 		data.bottom = new FormAttachment(100, -10);
 		loadButton.setLayoutData(data);		
 	
-		_configurationParametersTableViewer = new TableViewer(this,
+		_parametersTableViewer = new TableViewer(this,
 			SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
-		_configurationParametersTable = _configurationParametersTableViewer.getTable();
+		_parametersTable = _parametersTableViewer.getTable();
 		data = new FormData();
 		data.top = new FormAttachment(parametersLabel, 5);
 		data.left = new FormAttachment(0, 10);
 		data.right = new FormAttachment(100, -10);
 		data.bottom = new FormAttachment(setToDefaultButton, -5);
-		_configurationParametersTable.setLayoutData(data);		
-		initializeConfigurationParametersTable();
+		_parametersTable.setLayoutData(data);		
+		initializeParametersTable();
 	}
 	
-	private void initializeConfigurationParametersTable() {
-		_configurationParametersTable.setLinesVisible(true);
-		_configurationParametersTable.setHeaderVisible(true);
+	private void initializeParametersTable() {
+		_parametersTable.setLinesVisible(true);
+		_parametersTable.setHeaderVisible(true);
 		
 		TableLayout tableLayout = new TableLayout();
 		tableLayout.addColumnData(new ColumnWeightData(33, 75, true));
 		tableLayout.addColumnData(new ColumnWeightData(33, 75, true));
 		tableLayout.addColumnData(new ColumnWeightData(33, 75, true));
-		_configurationParametersTable.setLayout(tableLayout);
+		_parametersTable.setLayout(tableLayout);
 
-		TableColumn column1 = new TableColumn(_configurationParametersTable, SWT.LEFT);
+		TableColumn column1 = new TableColumn(_parametersTable, SWT.LEFT);
 		column1.setText("Name");
-		TableColumn column2 = new TableColumn(_configurationParametersTable, SWT.LEFT);
+		TableColumn column2 = new TableColumn(_parametersTable, SWT.LEFT);
 		column2.setText("Description");
-		TableColumn column3 = new TableColumn(_configurationParametersTable, SWT.LEFT);
+		TableColumn column3 = new TableColumn(_parametersTable, SWT.LEFT);
 		column3.setText("Value");
 		
-		_configurationParametersTableViewer.setLabelProvider(new ITableLabelProvider() {
+		_parametersTableViewer.setLabelProvider(new ITableLabelProvider() {
 			public Image getColumnImage(Object element, int columnIndex) {
 				return null;
 			}
@@ -129,26 +129,26 @@ public class ConfigurationView extends Composite implements IConfigurationView {
 			public void dispose() {}
 		});
 	
-		_configurationParametersTableViewer.setContentProvider(
+		_parametersTableViewer.setContentProvider(
 			new IStructuredContentProvider() {
 				
 			public Object[] getElements(Object element) {
-				return _configurationParameters.toArray();
+				return _parameters.toArray();
 			}
 
 			public void dispose() {}
 			public void inputChanged(Viewer arg0, Object arg1, Object arg2) {}
 		});
 		
-		_configurationParametersTableViewer.setColumnProperties(new String[] {
+		_parametersTableViewer.setColumnProperties(new String[] {
 			"Name", "Description", "Value"	
 		});
-		_configurationParametersTableViewer.setCellEditors(new CellEditor[] {
-			new TextCellEditor(_configurationParametersTable),
-			new TextCellEditor(_configurationParametersTable),
-			new TextCellEditor(_configurationParametersTable)
+		_parametersTableViewer.setCellEditors(new CellEditor[] {
+			new TextCellEditor(_parametersTable),
+			new TextCellEditor(_parametersTable),
+			new TextCellEditor(_parametersTable)
 		});
-		_configurationParametersTableViewer.setCellModifier(new ICellModifier() {
+		_parametersTableViewer.setCellModifier(new ICellModifier() {
 			public boolean canModify(Object element, String property) {
 				return property.equals("Value");
 			}
@@ -172,22 +172,22 @@ public class ConfigurationView extends Composite implements IConfigurationView {
 				Parameter parameter = (Parameter)tableItem.getData();
 				if (property.equals("Value")) {
 					parameter.setValue((String)value);
-					_configurationParametersTableViewer.refresh(parameter);
+					_parametersTableViewer.refresh(parameter);
 				}
 			}			
 		});
 	}
 	
-    public void setConfiguration(List<Parameter> value) {
-    	_configurationParameters = value;
-    	_configurationParametersTableViewer.setInput(_configurationParameters);
+    public void setData(List<Parameter> value) {
+    	_parameters = value;
+    	_parametersTableViewer.setInput(_parameters);
     }
     
-    public void setListener(IConfigurationViewListener listener) {
+    public void setListener(IParametersViewListener listener) {
     	_listener = listener;
     }
     
     public void refreshData() {
-    	_configurationParametersTableViewer.refresh();
+    	_parametersTableViewer.refresh();
     }
 }
