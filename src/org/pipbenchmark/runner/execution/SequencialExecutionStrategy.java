@@ -5,21 +5,21 @@ import java.util.*;
 import org.pipbenchmark.runner.*;
 
 public class SequencialExecutionStrategy extends ExecutionStrategy {
-    private boolean _benchmarking = false;
+    private boolean _running = false;
     private Thread _controlThread = null;
     private Thread[] _threads = null;
     private BenchmarkInstance _runningBenchmark = null;
     private double _ticksPerTransaction = 0;
     private List<BenchmarkResult> _results = new ArrayList<BenchmarkResult>();
 
-    public SequencialExecutionStrategy(BenchmarkProcess process, List<BenchmarkInstance> tests) {
-        super(process, tests);
+    public SequencialExecutionStrategy(BenchmarkProcess process, List<BenchmarkInstance> benchmarks) {
+        super(process, benchmarks);
     }
 
     @Override
     public void start() {
         if (getProcess().getDuration() <= 0) {
-            throw new BenchmarkException("TestDuration was not set");
+            throw new BenchmarkException("Duration was not set");
         }
 
         if (getProcess().getMeasurementType() == MeasurementType.Peak) {
@@ -29,7 +29,7 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
             	* getProcess().getNumberOfThreads();
         }
 
-        _benchmarking = true;
+        _running = true;
 
         // Start control thread
         _controlThread = new Thread(
@@ -43,7 +43,7 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
 
     @Override
     public void stop() {
-        _benchmarking = false;
+        _running = false;
 
         // Stop control thread
         if (_controlThread != null) {
@@ -141,7 +141,7 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
         try {
             long currentTicks = System.currentTimeMillis();
 
-            while (_benchmarking && benchmark == _runningBenchmark && endTicks > currentTicks) {
+            while (_running && benchmark == _runningBenchmark && endTicks > currentTicks) {
                 if (getProcess().getMeasurementType() == MeasurementType.Nominal) {
                     double ticksToNextTransaction = _ticksPerTransaction
                         - (currentTicks - lastExecutedTicks);

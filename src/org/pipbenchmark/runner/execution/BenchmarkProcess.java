@@ -10,10 +10,10 @@ public class BenchmarkProcess {
     private List<BenchmarkSuiteInstance> _suites;
 
     private int _numberOfThreads = 1;
-    private MeasurementType _performanceType = MeasurementType.Peak;
-    private double _nominalPerformance = 1;
-    private ExecutionType _samplingType = ExecutionType.Proportional;
-    private int _duration = 60000;
+    private MeasurementType _measurementType = MeasurementType.Peak;
+    private double _nominalRate = 1;
+    private ExecutionType _executionType = ExecutionType.Proportional;
+    private int _duration = 60;
     private boolean _forceContinue = false;
 
     private List<BenchmarkResult> _results = new ArrayList<BenchmarkResult>();
@@ -39,27 +39,27 @@ public class BenchmarkProcess {
     }
 
     public MeasurementType getMeasurementType() {
-        return _performanceType;
+        return _measurementType;
     }
     
     public void setMeasurementType(MeasurementType value) {
-        _performanceType = value; 
+        _measurementType = value; 
     }
 
     public double getNominalRate() {
-        return _nominalPerformance; 
+        return _nominalRate; 
     }
     
     public void setNominalRate(double value) {
-        _nominalPerformance = value;
+        _nominalRate = value;
     }
 
     public ExecutionType getExecutionType() {
-        return _samplingType; 
+        return _executionType; 
     }
     
     public void setExecutionType(ExecutionType value) {
-        _samplingType = value;
+        _executionType = value;
     }
 
     public int getDuration() {
@@ -107,7 +107,7 @@ public class BenchmarkProcess {
             throw new BenchmarkException("There are no benchmarks to execute");
 
         // Create requested test strategy
-        if (_samplingType == ExecutionType.Sequential)
+        if (_executionType == ExecutionType.Sequential)
             _strategy = new SequencialExecutionStrategy(this, selectedBenchmarks);
         else
             _strategy = new ProportionalExecutionStrategy(this, selectedBenchmarks);

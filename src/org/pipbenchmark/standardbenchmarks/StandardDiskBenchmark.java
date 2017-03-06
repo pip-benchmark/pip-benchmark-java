@@ -14,6 +14,7 @@ public class StandardDiskBenchmark extends Benchmark {
 
     private Object _syncRoot = new Object();
     private Random _randomGenerator = new Random();
+    private String _fileName;
     private RandomAccessFile _fileStream;
     private byte[] _buffer = new byte[BufferSize];
 
@@ -23,16 +24,14 @@ public class StandardDiskBenchmark extends Benchmark {
 
     @Override
     public void setUp() {
-    	try {
-    		_fileStream = new RandomAccessFile(getFileName(), "rw");
+        String directoryPath = System.getProperty("user.dir");
+        _fileName = directoryPath + String.format("/DiskBenchmark-%s.dat", UUID.randomUUID().toString());
+
+        try {
+    		_fileStream = new RandomAccessFile(_fileName, "rw");
     	} catch (IOException ex) {
     		throw new RuntimeException(ex);
     	}
-    }
-
-    private String getFileName() {
-        String directoryPath = System.getProperty("user.dir");
-        return directoryPath + String.format("/DiskBenchmark-%s.dat", UUID.randomUUID().toString());
     }
 
     @Override
@@ -82,7 +81,7 @@ public class StandardDiskBenchmark extends Benchmark {
 	            _fileStream.close();
 	            _fileStream = null;
 	
-	            File fileInfo = new File(getFileName());
+	            File fileInfo = new File(_fileName);
 	            if (fileInfo.exists()) {
                     fileInfo.delete();
 	            }

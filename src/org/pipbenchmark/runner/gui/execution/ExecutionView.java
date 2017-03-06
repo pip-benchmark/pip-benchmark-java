@@ -9,7 +9,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
-import org.pipbenchmark.*;
 import org.pipbenchmark.runner.ExecutionType;
 import org.pipbenchmark.runner.MeasurementType;
 import org.pipbenchmark.runner.gui.charts.*;

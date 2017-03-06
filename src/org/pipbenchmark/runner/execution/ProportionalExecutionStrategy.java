@@ -16,13 +16,21 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
 
     private void calculateExecutionTriggers() {
         double proportionSum = 0;
-        double startExecutionTrigger = 0;
-
         for (BenchmarkInstance benchmark : getBenchmarks()) {
-            double normalizedProportion = ((double)benchmark.getProportion()) / proportionSum;
-            benchmark.setStartExecutionTrigger(startExecutionTrigger);
-            benchmark.setEndExecutionTrigger(startExecutionTrigger + normalizedProportion);
-            startExecutionTrigger += normalizedProportion;
+        	proportionSum += !benchmark.isPassive() ? benchmark.getProportion() : 0;
+        }
+
+        double startExecutionTrigger = 0;
+        for (BenchmarkInstance benchmark : getBenchmarks()) {
+        	if (benchmark.isPassive()) {
+	            benchmark.setStartExecutionTrigger(0);
+	            benchmark.setEndExecutionTrigger(0);
+        	} else { 
+        		double normalizedProportion = ((double)benchmark.getProportion()) / proportionSum;
+	            benchmark.setStartExecutionTrigger(startExecutionTrigger);
+	            benchmark.setEndExecutionTrigger(startExecutionTrigger + normalizedProportion);
+	            startExecutionTrigger += normalizedProportion;
+        	}
         }
     }
 
@@ -88,7 +96,7 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
     private void performBenchmarking() {
         Random randomGenerator = new Random();
         long lastExecutedTicks = System.currentTimeMillis();
-        int numberOfTests = getBenchmarks().size();
+        int benchmarkCount = getBenchmarks().size();
         BenchmarkInstance firstBenchmark = getBenchmarks().size() == 1 
         	? getBenchmarks().get(0) : null;
 
@@ -105,11 +113,11 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
                         Thread.sleep((int)ticksToNextTransaction);
                 }
 
-                if (numberOfTests == 1) {
+                if (benchmarkCount == 1) {
                     firstBenchmark.execute();
                     lastExecutedTicks = System.currentTimeMillis();
                     incrementCounter(1, lastExecutedTicks);
-                } else if (numberOfTests == 0) {
+                } else if (benchmarkCount == 0) {
                     Thread.sleep(500);
                 } else {
                     double selector = randomGenerator.nextDouble();

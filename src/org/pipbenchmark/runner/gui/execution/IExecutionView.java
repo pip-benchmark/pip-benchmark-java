@@ -2,7 +2,6 @@ package org.pipbenchmark.runner.gui.execution;
 
 import java.util.*;
 
-import org.pipbenchmark.*;
 import org.pipbenchmark.runner.ExecutionType;
 import org.pipbenchmark.runner.MeasurementType;
 

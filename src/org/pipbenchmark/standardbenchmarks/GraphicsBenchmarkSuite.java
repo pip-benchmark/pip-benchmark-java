@@ -26,27 +26,27 @@ public class GraphicsBenchmarkSuite extends BenchmarkSuite {
 	}
 	
 	private void initializeTests() {
-	    addBenchmark("Line", "Measures line drawings", new Runnable() {
+	    createBenchmark("Line", "Measures line drawings", new Runnable() {
 	    	public void run() {
 	    		executeDrawLine();
 	    	}
 	    });
-	    addBenchmark("Rectangle", "Measures rectangle drawings", new Runnable() {
+	    createBenchmark("Rectangle", "Measures rectangle drawings", new Runnable() {
 	    	public void run() {
 	    		executeDrawRectangle();
 	    	}
 	    });
-	    addBenchmark("Text", "Measures text drawings", new Runnable() {
+	    createBenchmark("Text", "Measures text drawings", new Runnable() {
 	    	public void run() {
 	    		executeDrawText();
 	    	}
 	    });
-	    addBenchmark("Bitmap", "Measures bitmap drawings", new Runnable() {
+	    createBenchmark("Bitmap", "Measures bitmap drawings", new Runnable() {
 	    	public void run() {
 	    		executeDrawBitmap();
 	    	}
 	    });
-	    addBenchmark("BitmapScaled", "Measures scaled bitmap drawings", new Runnable() {
+	    createBenchmark("BitmapScaled", "Measures scaled bitmap drawings", new Runnable() {
 	    	public void run() {
 	    		executeDrawBitmapScaled();
 	    	}

@@ -19,10 +19,10 @@ public class StandardBenchmarkSuite extends BenchmarkSuite {
         _videoBenchmark = new DefaultVideoBenchmark();
         addBenchmark(_videoBenchmark);
 
-        addParameter("FilePath", "Path where test file is located on disk", "");
-        addParameter("FileSize", "Size of the test file", "102400000");
-        addParameter("ChunkSize", "Size of a chunk that read or writter from/to test file", "1024000");
-        addParameter("OperationTypes", "Types of test operations: read, write or all", "all");
+        createParameter("FilePath", "Path where test file is located on disk", "");
+        createParameter("FileSize", "Size of the test file", "102400000");
+        createParameter("ChunkSize", "Size of a chunk that read or writter from/to test file", "1024000");
+        createParameter("OperationTypes", "Types of test operations: read, write or all", "all");
     }
 
     public DefaultCpuBenchmark getCpuBenchmark() {

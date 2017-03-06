@@ -45,7 +45,7 @@ public class BenchmarkSuiteManager {
         }
     }
 
-    public void selectBenchmarks(String[] benchmarkNames) {
+    public void selectBenchmarksByName(String[] benchmarkNames) {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             	for (String benchmarkName : benchmarkNames) {
@@ -74,7 +74,7 @@ public class BenchmarkSuiteManager {
         }
     }
 
-    public void unselectBenchmarks(String[] benchmarkNames) {
+    public void unselectBenchmarksByName(String[] benchmarkNames) {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             	for (String benchmarkName : benchmarkNames) {

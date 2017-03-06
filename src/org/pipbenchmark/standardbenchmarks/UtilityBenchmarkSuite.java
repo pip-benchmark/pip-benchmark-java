@@ -10,9 +10,9 @@ public class UtilityBenchmarkSuite extends BenchmarkSuite {
     public UtilityBenchmarkSuite() {
         super("Utility", "Set of utility benchmark tests");
 
-        addBenchmark("Empty", "Does nothing",
+        createBenchmark("Empty", "Does nothing",
         	new Runnable() { public final void run() { executeEmpty(); } });
-        addBenchmark("RandomDelay", "Introduces random delay to measuring thread",
+        createBenchmark("RandomDelay", "Introduces random delay to measuring thread",
         	new Runnable() { public final void run() { executeRandomDelay(); } });
     }
 

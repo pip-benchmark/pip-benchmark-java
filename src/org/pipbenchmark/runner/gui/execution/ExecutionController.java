@@ -2,7 +2,6 @@ package org.pipbenchmark.runner.gui.execution;
 
 import java.util.*;
 
-import org.pipbenchmark.*;
 import org.pipbenchmark.runner.BenchmarkResult;
 import org.pipbenchmark.runner.BenchmarkRunner;
 import org.pipbenchmark.runner.ExecutionState;

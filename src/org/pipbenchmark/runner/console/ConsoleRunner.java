@@ -45,7 +45,7 @@ public class ConsoleRunner {
             	runner.selectAllBenchmarks();
             else {
             	for (String benchmarkName : args.getBenchmarks())
-            		runner.selectBenchmarks(benchmarkName);
+            		runner.selectBenchmarksByName(benchmarkName);
             }
             
             if (args.isShowParameters()) {

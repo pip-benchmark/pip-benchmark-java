@@ -63,7 +63,7 @@ public class BenchmarkRunner {
     	getSuiteManager().addSuite(suite);
     }
 
-    public void addSuiteInstance(BenchmarkSuiteInstance suite) {
+    public void addSuite(BenchmarkSuiteInstance suite) {
     	getSuiteManager().addSuite(suite);
     }
     
@@ -87,8 +87,8 @@ public class BenchmarkRunner {
         getSuiteManager().selectAllBenchmarks();
     }
 
-    public void selectBenchmarks(String ...benchmarkNames) {
-       getSuiteManager().selectBenchmarks(benchmarkNames);
+    public void selectBenchmarksByName(String ...benchmarkNames) {
+       getSuiteManager().selectBenchmarksByName(benchmarkNames);
     }
 
     public void selectBenchmarks(BenchmarkInstance ...benchmarks) {

@@ -32,10 +32,10 @@ public class CommandLineArgs {
         	String arg = args[index];
         	boolean moreArgs = index < args.length - 1;
         	
-            if ((arg.equals("-a") || arg.equals("-j") || args.equals("--jar")) && moreArgs) {
+            if ((arg.equals("-a") || arg.equals("-j") || arg.equals("--jar")) && moreArgs) {
                 String library = args[++index];
                 _libraries.add(library);
-            } else if ((arg.equals("-l") || args.equals("--class")) && moreArgs) {
+            } else if ((arg.equals("-l") || arg.equals("--class")) && moreArgs) {
                     String clazz = args[++index];
                     _classes.add(clazz);
             } else if ((arg.equals("-b") || arg.equals("--benchmark")) && moreArgs) {

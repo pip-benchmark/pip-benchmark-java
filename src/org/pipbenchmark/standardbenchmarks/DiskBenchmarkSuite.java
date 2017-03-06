@@ -25,25 +25,25 @@ public class DiskBenchmarkSuite extends BenchmarkSuite {
     }
 
     private void initializeConfigurationParameters() {
-        _filePath = addParameter("FilePath", "Path where test file is located on disk", "");
-        _fileSize = addParameter("FileSize", "Size of the test file", "102400000");
-        _chunkSize = addParameter("ChunkSize", "Size of a chunk that read or writter from/to test file", "1024000");
+        _filePath = createParameter("FilePath", "Path where test file is located on disk", "");
+        _fileSize = createParameter("FileSize", "Size of the test file", "102400000");
+        _chunkSize = createParameter("ChunkSize", "Size of a chunk that read or writter from/to test file", "1024000");
     }
 
     private void initializeTests() {
-        addBenchmark("ReadsAndWrites", "Measures read and write operations",
+        createBenchmark("ReadsAndWrites", "Measures read and write operations",
         	new Runnable() {
         		public void run() {
         			executeReadsAndWrites();
         		}
         	});
-        addBenchmark("Reads", "Measures only read operations",
+        createBenchmark("Reads", "Measures only read operations",
 	    	new Runnable() {
 	    		public void run() {
 	    			executeReads();
 	    		}
 	    	});
-        addBenchmark("Writes", "Measures only write operations",
+        createBenchmark("Writes", "Measures only write operations",
         	new Runnable() {
         		public void run() {
         			executeWrites();

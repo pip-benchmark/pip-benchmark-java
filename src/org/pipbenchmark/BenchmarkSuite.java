@@ -39,11 +39,11 @@ public abstract class BenchmarkSuite {
     	return parameter;
     }
     
-    public Parameter addParameter(String name, String description) {
-    	return addParameter(name, description, null);
+    public Parameter createParameter(String name, String description) {
+    	return createParameter(name, description, null);
     }
 
-    public Parameter addParameter(String name, String description, String defaultValue) {
+    public Parameter createParameter(String name, String description, String defaultValue) {
     	Parameter parameter = new Parameter(name, description, defaultValue);
     	_parameters.put(name, parameter);
     	return parameter;
@@ -58,7 +58,7 @@ public abstract class BenchmarkSuite {
         return benchmark;
     }
 
-    protected Benchmark addBenchmark(String name, String description, Runnable executeCallback) {
+    protected Benchmark createBenchmark(String name, String description, Runnable executeCallback) {
     	Benchmark benchmark = new DelegatedBenchmark(name, description, executeCallback);
         _benchmarks.add(benchmark);
     	return benchmark;
