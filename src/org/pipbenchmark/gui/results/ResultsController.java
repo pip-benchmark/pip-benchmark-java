@@ -48,7 +48,7 @@ public class ResultsController extends AbstractChildController
     }
 
     public void generateReport() {
-        String report = _model.generateReport();
+        String report = _model.getReport().generate();
         _view.setReportContent(report);
     }
 

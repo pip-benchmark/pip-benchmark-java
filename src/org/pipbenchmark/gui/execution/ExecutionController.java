@@ -7,13 +7,14 @@ import org.pipbenchmark.runner.BenchmarkRunner;
 import org.pipbenchmark.runner.config.ExecutionType;
 import org.pipbenchmark.runner.config.MeasurementType;
 import org.pipbenchmark.runner.execution.ExecutionState;
+import org.pipbenchmark.runner.execution.IExecutionListener;
 import org.pipbenchmark.runner.results.BenchmarkResult;
 import org.pipbenchmark.runner.results.IResultListener;
 
 import java.text.*;
 
 public class ExecutionController extends AbstractChildController
-	implements IExecutionViewListener, IResultListener {
+	implements IExecutionViewListener, IResultListener, IExecutionListener {
 	
 	private SimpleDateFormat _dateFormat = new SimpleDateFormat("HH:mm:ss"); 
     private boolean _updatingView = false;
@@ -28,7 +29,7 @@ public class ExecutionController extends AbstractChildController
         _view.setListener(this);
 
         _model = mainController.getModel();
-        _model.addResultUpdatedListener(this);
+        _model.getResults().addUpdatedListener(this);
 
         updateView();
     }
@@ -111,17 +112,22 @@ public class ExecutionController extends AbstractChildController
 
 	public void configurationUpdated() {}
     
-	public void onResultUpdated(ExecutionState status, BenchmarkResult result) {
+	public void onResultUpdated(BenchmarkResult result) {
 		getMainView().getHandler().getDisplay().asyncExec(
-			new StatusUpdater(status, result));
+			new ResultUpdater(result)
+		);
     }
-	
-	private class StatusUpdater implements Runnable {
-		private ExecutionState _status;
+
+	public void onStateUpdated(ExecutionState state) {
+		getMainView().getHandler().getDisplay().asyncExec(
+			new StateUpdater(state)
+		);
+    }
+
+	private class ResultUpdater implements Runnable {
 		private BenchmarkResult _result;
 		
-		public StatusUpdater(ExecutionState status, BenchmarkResult result) {
-			_status = status;
+		public ResultUpdater(BenchmarkResult result) {
 			_result = result;
 		}
 
@@ -129,53 +135,35 @@ public class ExecutionController extends AbstractChildController
 			if (getMainView().getHandler().getDisplay().isDisposed()) 
 				return;
 			
-            if (_result != null) {
-                _view.setStartTime(formatDate(_result.getStartTime()));
-                _view.setElapsedTime(formatTime(_result.getElapsedTime()));
-                _view.setEndTime(formatDate(_result.getStartTime() + _result.getElapsedTime()));
-                _view.setMinPerformance(formatNumber(_result.getPerformanceMeasurement().getMinValue()));
-                _view.setAveragePerformance(formatNumber(_result.getPerformanceMeasurement().getAverageValue()));
-                _view.setMaxPerformance(formatNumber(_result.getPerformanceMeasurement().getMaxValue()));
-                _view.setMinCpuLoad(formatNumber(_result.getCpuLoadMeasurement().getMinValue()));
-                _view.setAverageCpuLoad(formatNumber(_result.getCpuLoadMeasurement().getAverageValue()));
-                _view.setMaxCpuLoad(formatNumber(_result.getCpuLoadMeasurement().getMaxValue()));
-                _view.setMinMemoryUsage(formatNumber(_result.getMemoryUsageMeasurement().getMinValue()));
-                _view.setAverageMemoryUsage(formatNumber(_result.getMemoryUsageMeasurement().getAverageValue()));
-                _view.setMaxMemoryUsage(formatNumber(_result.getMemoryUsageMeasurement().getMaxValue()));
+            _view.setStartTime(formatDate(_result.getStartTime()));
+            _view.setElapsedTime(formatTime(_result.getElapsedTime()));
+            _view.setEndTime(formatDate(_result.getStartTime() + _result.getElapsedTime()));
+            _view.setMinPerformance(formatNumber(_result.getPerformanceMeasurement().getMinValue()));
+            _view.setAveragePerformance(formatNumber(_result.getPerformanceMeasurement().getAverageValue()));
+            _view.setMaxPerformance(formatNumber(_result.getPerformanceMeasurement().getMaxValue()));
+            _view.setMinCpuLoad(formatNumber(_result.getCpuLoadMeasurement().getMinValue()));
+            _view.setAverageCpuLoad(formatNumber(_result.getCpuLoadMeasurement().getAverageValue()));
+            _view.setMaxCpuLoad(formatNumber(_result.getCpuLoadMeasurement().getMaxValue()));
+            _view.setMinMemoryUsage(formatNumber(_result.getMemoryUsageMeasurement().getMinValue()));
+            _view.setAverageMemoryUsage(formatNumber(_result.getMemoryUsageMeasurement().getAverageValue()));
+            _view.setMaxMemoryUsage(formatNumber(_result.getMemoryUsageMeasurement().getMaxValue()));
 
-                String resultName = _result.getBenchmarks().size() != 1
-                	? "All" : _result.getBenchmarks().get(0).getFullName();
-                ExecutionResult executionResult = _results.get(resultName);
-                if (executionResult != null)
-                    executionResult.update(_result);
-                else {
-                    executionResult = new ExecutionResult(_result);
-                    _results.put(resultName, executionResult);
-                }
-                _view.setExecutionResults(
-                	new ArrayList<ExecutionResult>(_results.values()));
-            }
+            String resultName = _result.getBenchmarks().size() != 1
+            	? "All" : _result.getBenchmarks().get(0).getFullName();
+            ExecutionResult executionResult = _results.get(resultName);
+            if (executionResult != null)
+                executionResult.update(_result);
+            else {
+                executionResult = new ExecutionResult(_result);
+                _results.put(resultName, executionResult);
+            }            
+            _view.setExecutionResults(
+            	new ArrayList<ExecutionResult>(_results.values()));
 
-            if (_model.getConfiguration().getMeasurementType() == MeasurementType.Peak)
-                _view.setPerformanceChartName("Performance Chart (tps)");
-            else
-                _view.setPerformanceChartName("Cpu Load Chart (%)");
-
-            if (_status == ExecutionState.Starting) {
-                _view.clearPerformancePoints();
-            } else if (_status == ExecutionState.Running) {
-                if (_result != null) {
-                    _view.addCurrentPerformancePoint(
-                    	_model.getConfiguration().getMeasurementType() == MeasurementType.Peak
-                        ? _result.getPerformanceMeasurement().getCurrentValue()
-                        : _result.getCpuLoadMeasurement().getCurrentValue());
-                }
-            } else if (_status == ExecutionState.Completed) {
-                getMainController().setStatusMessage("Benchmarking completed.");
-                _view.setBenchmarkActionButton("Start");
-                getMainController().getResultsController().generateReport();
-                getMainController().getView().setSelectedView("Results");
-            }
+            _view.addCurrentPerformancePoint(
+            	_model.getConfiguration().getMeasurementType() == MeasurementType.Peak
+                ? _result.getPerformanceMeasurement().getCurrentValue()
+                : _result.getCpuLoadMeasurement().getCurrentValue());
         }
 
 		private String formatNumber(double value) {
@@ -195,4 +183,30 @@ public class ExecutionController extends AbstractChildController
 		}
 	}
 	
+	private class StateUpdater implements Runnable {
+		private ExecutionState _state = ExecutionState.Initial;
+		
+		public StateUpdater(ExecutionState state) {
+			_state = state;
+		}
+
+		public void run() {
+			if (getMainView().getHandler().getDisplay().isDisposed()) 
+				return;
+			
+            if (_model.getConfiguration().getMeasurementType() == MeasurementType.Peak)
+                _view.setPerformanceChartName("Performance Chart (tps)");
+            else
+                _view.setPerformanceChartName("Cpu Load Chart (%)");
+
+            if (_state == ExecutionState.Running) {
+                _view.clearPerformancePoints();
+            } else if (_state == ExecutionState.Completed) {
+                getMainController().setStatusMessage("Benchmarking completed.");
+                _view.setBenchmarkActionButton("Start");
+                getMainController().getResultsController().generateReport();
+                getMainController().getView().setSelectedView("Results");
+            }
+        }
+	}	
 }

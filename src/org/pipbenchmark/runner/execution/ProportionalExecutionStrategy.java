@@ -9,39 +9,27 @@ import org.pipbenchmark.runner.results.*;
 public class ProportionalExecutionStrategy extends ExecutionStrategy {
     private boolean _running = false;
     private Thread[] _threads = null;
+    private Thread _controlThread = null;
     private double _ticksPerTransaction = 0;
+    private ResultAggregator _aggregator;
 
     public ProportionalExecutionStrategy(ConfigurationManager configuration,
-		ExecutionManager parentProcess, List<BenchmarkInstance> benchmarks) {
+		ResultsManager results, List<BenchmarkInstance> benchmarks) {
         
-    	super(configuration, parentProcess, benchmarks);
-        calculateExecutionTriggers();
-    }
+    	super(configuration, results, benchmarks);
 
-    private void calculateExecutionTriggers() {
-        double proportionSum = 0;
-        for (BenchmarkInstance benchmark : getBenchmarks()) {
-        	proportionSum += !benchmark.isPassive() ? benchmark.getProportion() : 0;
-        }
-
-        double startExecutionTrigger = 0;
-        for (BenchmarkInstance benchmark : getBenchmarks()) {
-        	if (benchmark.isPassive()) {
-	            benchmark.setStartRange(0);
-	            benchmark.setEndRange(0);
-        	} else { 
-        		double normalizedProportion = ((double)benchmark.getProportion()) / proportionSum;
-	            benchmark.setStartRange(startExecutionTrigger);
-	            benchmark.setEndRange(startExecutionTrigger + normalizedProportion);
-	            startExecutionTrigger += normalizedProportion;
-        	}
-        }
-    }
+        _aggregator = new ResultAggregator(results, benchmarks);
+}
 
     @Override
     public void start() {
-        initializeMeasurements();
+    	if (_running) return;
+    	
+        _running = true;
+        _aggregator.start();
 
+        calculateProportionalRanges();
+        
         if (_configuration.getMeasurementType() == MeasurementType.Peak)
             _ticksPerTransaction = 0;
         else
@@ -49,10 +37,8 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
             	* _configuration.getNumberOfThreads();
 
         // Initialize test suites
-        for (BenchmarkSuiteInstance suite : getSuites())
-            suite.setUp(new ExecutionContext(this, suite));
-
-        _running = true;
+        for (BenchmarkSuiteInstance suite : _suites)
+            suite.setUp(new ExecutionContext(suite, _aggregator, this));
 
         // Start benchmarking threads
         _threads = new Thread[_configuration.getNumberOfThreads()];
@@ -60,51 +46,95 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
             _threads[index] = new Thread(
             	new Runnable() {
             		@Override
-            		public final void run() { performBenchmarking(); }
+            		public final void run() { execute(); }
             	});
             _threads[index].setName(String.format("Benchmarking Thread #%d/%d", 
                 index, _configuration.getNumberOfThreads()));
             //_threads[index].setPriority(ThreadPriority.Highest);
             _threads[index].start();
         }
+
+        // Start control thread
+        _controlThread = new Thread(
+        	new Runnable() {
+        		@Override
+        		public final void run() { control(); }
+        	});
+        _controlThread.setName("Benchmarking Control Thread");
+        _controlThread.start();
     }
 
     @Override
     public void stop() {
-        _running = false;
+    	if (_running) {
+    		synchronized(_syncRoot) {
+    			if (_running) {
+			        _running = false;
+			        _aggregator.stop();
+			
+			        // Stop benchmarking threads
+			        if (_threads != null) {
+			            for (int index = 0; index < _threads.length; index++) {
+			                _threads[index].interrupt();
+			                _threads[index] = null;
+			            }
+			            _threads = null;
+			        }
+			
+			        for (BenchmarkSuiteInstance suite : _suites)
+			            suite.tearDown();
+    			}
+    		}
+    	}
+    }
 
-        // Stop benchmarking threads
-        if (_threads != null) {
-            for (int index = 0; index < _threads.length; index++) {
-                _threads[index].interrupt();
-                _threads[index] = null;
-            }
-            _threads = null;
+    private void calculateProportionalRanges() {
+        double proportionSum = 0;
+        for (BenchmarkInstance benchmark : _activeBenchmarks) {
+        	proportionSum += !benchmark.isPassive() ? benchmark.getProportion() : 0;
         }
 
-        for (BenchmarkSuiteInstance suite : getSuites()) {
-            suite.tearDown();
+        double startRange = 0;
+        for (BenchmarkInstance benchmark : _activeBenchmarks) {
+    		double normalizedProportion = ((double)benchmark.getProportion()) / proportionSum;
+            benchmark.setStartRange(startRange);
+            benchmark.setEndRange(startRange + normalizedProportion);
+            startRange += normalizedProportion;
         }
     }
 
-    @Override
-    public List<BenchmarkResult> getResults() {
-        List<BenchmarkResult> results = new ArrayList<BenchmarkResult>();
-
-        if (getCurrentResult() != null)
-            results.add(getCurrentResult());
-
-        return results;
+    private void control() {
+        // Wait for set duration (in seconds)
+        try {
+        	Thread.sleep(_configuration.getDuration() * 1000);
+        } catch (InterruptedException ex) {
+        	// Ignore
+        } finally {
+		    _controlThread = null;
+	    
+	        stop();
+        }
     }
 
-    private void performBenchmarking() {
+    private void executeBenchmark(BenchmarkInstance benchmark) throws InterruptedException {
+        try {
+            benchmark.execute();
+        } catch (Exception ex) {
+        	if (ex instanceof InterruptedException) {
+        		// Ignore...
+        	} else if (_configuration.isForceContinue()) {
+                _aggregator.reportError(ex);
+        	} else
+                throw ex;
+        }
+    }    
+
+    private void execute() {
         Random randomGenerator = new Random();
         long lastExecutedTicks = System.currentTimeMillis();
-        int benchmarkCount = getBenchmarks().size();
-        BenchmarkInstance firstBenchmark = getBenchmarks().size() == 1 
-        	? getBenchmarks().get(0) : null;
-
-        notifyResultUpdate(ExecutionState.Starting);
+        int benchmarkCount = _activeBenchmarks.size();
+        BenchmarkInstance firstBenchmark = _activeBenchmarks.size() == 1 
+        	? _activeBenchmarks.get(0) : null;
 
         try {
             while (_running) {
@@ -120,17 +150,17 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
                 if (benchmarkCount == 1) {
                     firstBenchmark.execute();
                     lastExecutedTicks = System.currentTimeMillis();
-                    incrementCounter(1, lastExecutedTicks);
+                    _aggregator.incrementCounter(1, lastExecutedTicks);
                 } else if (benchmarkCount == 0) {
                     Thread.sleep(500);
                 } else {
                     double selector = randomGenerator.nextDouble();
-                    for (int index = 0; index < getBenchmarks().size(); index++) {
-                        BenchmarkInstance benchmark = getBenchmarks().get(index);
+                    for (int index = 0; index < _activeBenchmarks.size(); index++) {
+                        BenchmarkInstance benchmark = _activeBenchmarks.get(index);
                         if (benchmark.withinRange(selector)) {
                             lastExecutedTicks = System.currentTimeMillis();
                             executeBenchmark(benchmark);
-                            incrementCounter(1, lastExecutedTicks);
+                            _aggregator.incrementCounter(1, lastExecutedTicks);
                             break;
                         }
                     }
@@ -138,8 +168,6 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
             }
         } catch (InterruptedException ex) {
             // Ignore the exception...
-        } finally {
-            notifyResultUpdate(ExecutionState.Completed);
         }
     }
 }

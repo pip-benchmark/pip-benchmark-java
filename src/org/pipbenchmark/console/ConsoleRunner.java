@@ -15,7 +15,7 @@ public class ConsoleRunner {
 	public void run(CommandLineArgs processedArgs) {
         BenchmarkRunner runner = new BenchmarkRunner();
         
-        ConsoleEventPrinter.add(runner);
+        ConsoleEventPrinter.attach(runner);
 
         executeBatchMode(processedArgs, runner);
 	}
@@ -64,9 +64,12 @@ public class ConsoleRunner {
             // Benchmark the environment
             if (args.getBenchmarkEnvironment()) {
                 System.out.println("Benchmarking Environment (wait up to 2 mins)...");
-                runner.benchmarkEnvironment();
+                runner.getEnvironment().measure(true, true, true);
                 System.out.printf("CPU: %.2f, Video: %.2f, Disk: %.2f\n",
-                    runner.getCpuBenchmark(), runner.getVideoBenchmark(), runner.getDiskBenchmark());
+                    runner.getEnvironment().getCpuMeasurement(), 
+                    runner.getEnvironment().getVideoMeasurement(), 
+                    runner.getEnvironment().getDiskMeasurement()
+                );
             }
 
             // Configure benchmarking
@@ -82,8 +85,8 @@ public class ConsoleRunner {
                 runner.stop();
             }
 
-            if (runner.getResults().size() > 0)
-                System.out.printf("%f", runner.getResults().get(0).getPerformanceMeasurement().getAverageValue());
+            if (runner.getResults().getAll().size() > 0)
+                System.out.printf("%f", runner.getResults().getAll().get(0).getPerformanceMeasurement().getAverageValue());
 
             // Generate report
             if (args.getReportFile() != null) {
@@ -91,7 +94,7 @@ public class ConsoleRunner {
             	try {
             		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
             		try {
-            			writer.write(runner.generateReport());
+            			writer.write(runner.getReport().generate());
             		} finally {
             			writer.close();
             		}
@@ -99,6 +102,8 @@ public class ConsoleRunner {
                 	stream.close();
                 }
             }
+            
+            System.out.println(runner.getReport().generate());
         }
         catch (Exception ex) {
         	System.out.printf("Error: %s\n", ex.getMessage());
@@ -109,7 +114,7 @@ public class ConsoleRunner {
     private static void printBenchmarks(BenchmarkRunner runner) {
         System.out.println("Pip.Benchmark Console Runner. (c) Conceptual Vision Consulting LLC 2017");
         System.out.println();
-        System.out.println("Loaded Benchmarks:");
+        System.out.println("Benchmarks:");
 
         for (BenchmarkSuiteInstance suite : runner.getBenchmarks().getSuites()) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
@@ -121,7 +126,7 @@ public class ConsoleRunner {
     private static void printParameters(BenchmarkRunner runner) {
         System.out.println("Pip.Benchmark Console Runner. (c) Conceptual Vision Consulting LLC 2017");
         System.out.println();
-        System.out.println("Configuration Parameters:");
+        System.out.println("Parameters:");
 
         for (Parameter parameter : runner.getParameters().getUserDefined()) {
             String defaultValue = parameter.getDefaultValue();

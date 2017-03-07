@@ -5,7 +5,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.pipbenchmark.gui.shell.*;
 import org.pipbenchmark.runner.*;
-import org.pipbenchmark.runner.execution.ExecutionState;
 import org.pipbenchmark.runner.results.BenchmarkResult;
 import org.pipbenchmark.runner.results.IResultListener;
 
@@ -23,7 +22,7 @@ public class ParametersController extends AbstractChildController
         _view.setListener(this);
 
         _model = mainController.getModel();
-        _model.addResultUpdatedListener(this);
+        _model.getResults().addUpdatedListener(this);
 
         initializeDialogs();
         updateView();
@@ -74,7 +73,7 @@ public class ParametersController extends AbstractChildController
     	}
     }
 
-	public void onResultUpdated(ExecutionState status, BenchmarkResult result) {
+	public void onResultUpdated(BenchmarkResult result) {
 	}
 	
 	public void configurationUpdated() {

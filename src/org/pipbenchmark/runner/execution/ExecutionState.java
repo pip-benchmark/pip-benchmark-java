@@ -1,7 +1,7 @@
 package org.pipbenchmark.runner.execution;
 
 public enum ExecutionState {
-    Starting,
+    Initial,
     Running,
     Completed
 }

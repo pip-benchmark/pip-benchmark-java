@@ -11,9 +11,11 @@ public class BenchmarkResult {
     private Measurement _performanceMeasurement = new Measurement(0, 0, 0, 0);
     private Measurement _cpuLoadMeasurement = new Measurement(0, 0, 0, 0);
     private Measurement _memoryUsageMeasurement = new Measurement(0, 0, 0, 0);
-    private List<String> _errors = new ArrayList<String>();
+    private List<Object> _errors = new ArrayList<Object>();
 
-    public BenchmarkResult() { }
+    public BenchmarkResult(List<BenchmarkInstance> benchmarks) {
+    	_benchmarks = benchmarks;
+    }
 
     public List<BenchmarkInstance> getBenchmarks() {
         return _benchmarks;
@@ -59,7 +61,7 @@ public class BenchmarkResult {
         _memoryUsageMeasurement = value;
     }
     
-    public List<String> getErrors() {
+    public List<Object> getErrors() {
     	return _errors;
     }
 }

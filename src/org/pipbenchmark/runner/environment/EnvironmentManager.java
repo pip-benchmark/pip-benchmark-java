@@ -3,25 +3,25 @@ package org.pipbenchmark.runner.environment;
 import java.io.*;
 import java.util.*;
 
-import org.pipbenchmark.runner.*;
 import org.pipbenchmark.runner.benchmarks.*;
 import org.pipbenchmark.runner.config.*;
 import org.pipbenchmark.runner.execution.*;
+import org.pipbenchmark.runner.results.*;
 
 public class EnvironmentManager extends ExecutionManager {
     private final static int Duration = 5;
 
-    private double _cpuBenchmark;
-    private double _videoBenchmark;
-    private double _diskBenchmark;
+    private double _cpuMeasurement;
+    private double _videoMeasurement;
+    private double _diskMeasurement;
 
-    public EnvironmentManager(BenchmarkRunner runner) {
-        super(new ConfigurationManager(), runner);
+    public EnvironmentManager() {
+        super(new ConfigurationManager(), new ResultsManager());
         
         this._configuration.setDuration(Duration);
         
         try {
-        	loadSystemBenchmarks();
+        	load();
         } catch (IOException ex) {
         	// Ignore. it shall never happen here...
         }
@@ -31,95 +31,95 @@ public class EnvironmentManager extends ExecutionManager {
         return new SystemInfo();
     }
 
-    public double getCpuBenchmark() {
-        return _cpuBenchmark;
+    public double getCpuMeasurement() {
+        return _cpuMeasurement;
     }
 
-    public double getVideoBenchmark() {
-        return _videoBenchmark;
+    public double getVideoMeasurement() {
+        return _videoMeasurement;
     }
 
-    public double getDiskBenchmark() {
-        return _diskBenchmark;
+    public double getDiskMeasurement() {
+        return _diskMeasurement;
     }
 
-    public void benchmarkEnvironment(boolean cpu, boolean disk, boolean video) {
+    public void measure(boolean cpu, boolean disk, boolean video) {
         try {
         	if (cpu)
-        		_cpuBenchmark = computeCpuBenchmark();
+        		_cpuMeasurement = measureCpu();
             
         	if (video)
-        		_videoBenchmark = computeVideoBenchmark();
+        		_videoMeasurement = measureVideo();
             
         	if (disk)
-        		_diskBenchmark = computeDiskBenchmark();
+        		_diskMeasurement = measureDisk();
 
-            saveSystemBenchmarks();
+            save();
         } catch (Throwable t) {
         	t.printStackTrace();
             stop();
         }
     }
 
-    private void loadSystemBenchmarks() throws IOException {
+    private void load() throws IOException {
         EnvironmentProperties properties = new EnvironmentProperties();
         properties.load();
 
-        _cpuBenchmark = properties.getAsDouble("System.CpuBenchmark", 0);
-        _videoBenchmark = properties.getAsDouble("System.VideoBenchmark", 0);
-        _diskBenchmark = properties.getAsDouble("System.DiskBenchmark", 0);
+        _cpuMeasurement = properties.getAsDouble("CpuMeasurement", 0);
+        _videoMeasurement = properties.getAsDouble("VideoMeasurement", 0);
+        _diskMeasurement = properties.getAsDouble("DiskMeasurement", 0);
     }
 
-    private void saveSystemBenchmarks() throws IOException {
+    private void save() throws IOException {
         EnvironmentProperties properties = new EnvironmentProperties();
 
-        properties.setAsDouble("System.CpuBenchmark", _cpuBenchmark);
-        properties.setAsDouble("System.VideoBenchmark", _videoBenchmark);
-        properties.setAsDouble("System.DiskBenchmark", _diskBenchmark);
+        properties.setAsDouble("CpuMeasurement", _cpuMeasurement);
+        properties.setAsDouble("VideoMeasurement", _videoMeasurement);
+        properties.setAsDouble("DiskMeasurement", _diskMeasurement);
 
         properties.save();
     }
 
-    private double computeCpuBenchmark() throws InterruptedException {
+    private double measureCpu() throws InterruptedException {
         StandardBenchmarkSuite suite = new StandardBenchmarkSuite();
         BenchmarkSuiteInstance instance = new BenchmarkSuiteInstance(suite);
         
         instance.unselectAll();
         instance.selectByName(suite.getCpuBenchmark().getName());
 
-        super.start(instance);
+        super.start(instance.getSelected());
         Thread.sleep(Duration);
         super.stop();
 
-        return super.getResults().get(0).getPerformanceMeasurement().getAverageValue();
+        return _results.getAll().get(0).getPerformanceMeasurement().getAverageValue();
     }
 
-    private double computeVideoBenchmark() throws InterruptedException {
+    private double measureVideo() throws InterruptedException {
         StandardBenchmarkSuite suite = new StandardBenchmarkSuite();
         BenchmarkSuiteInstance instance = new BenchmarkSuiteInstance(suite);
 
         instance.unselectAll();
         instance.selectByName(suite.getVideoBenchmark().getName());
 
-        super.start(instance);
+        super.run(instance.getSelected());
         Thread.sleep(Duration);
         super.stop();
 
-    	return super.getResults().get(0).getPerformanceMeasurement().getAverageValue();
+    	return _results.getAll().get(0).getPerformanceMeasurement().getAverageValue();
     }
 
-    private double computeDiskBenchmark() throws InterruptedException {
+    private double measureDisk() throws InterruptedException {
         StandardBenchmarkSuite suite = new StandardBenchmarkSuite();
         BenchmarkSuiteInstance instance = new BenchmarkSuiteInstance(suite);
 
         instance.unselectAll();
         instance.selectByName(suite.getDiskBenchmark().getName());
 
-        super.start(instance);
+        super.start(instance.getSelected());
         Thread.sleep(Duration);
         super.stop();
 
-    	return super.getResults().get(0).getPerformanceMeasurement().getAverageValue();
+    	return _results.getAll().get(0).getPerformanceMeasurement().getAverageValue();
     }
     
 }

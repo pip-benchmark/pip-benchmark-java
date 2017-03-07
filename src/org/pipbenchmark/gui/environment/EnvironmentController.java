@@ -28,16 +28,16 @@ public class EnvironmentController extends AbstractChildController
     private void updateView() {
         _view.setSystemInformation(getSystemInformation());
         _view.setCpuPerformance(
-        	String.format("%.2f", _model.getCpuBenchmark()));
+        	String.format("%.2f", _model.getEnvironment().getCpuMeasurement()));
         _view.setVideoPerformance(
-        	String.format("%.2f", _model.getVideoBenchmark()));
+        	String.format("%.2f", _model.getEnvironment().getVideoMeasurement()));
         _view.setDiskPerformance(
-        	String.format("%.2f", _model.getDiskBenchmark()));
+        	String.format("%.2f", _model.getEnvironment().getDiskMeasurement()));
     }
 
     private List<EnvironmentParameter> getSystemInformation() {
         List<EnvironmentParameter> result = new ArrayList<EnvironmentParameter>();
-        for (Map.Entry<String, String> pair : _model.getSystemInformation().entrySet()) {
+        for (Map.Entry<String, String> pair : _model.getEnvironment().getSystemInfo().entrySet()) {
             result.add(new EnvironmentParameter(pair.getKey(), pair.getValue()));
         }
         return result;
@@ -51,7 +51,7 @@ public class EnvironmentController extends AbstractChildController
 					throws InvocationTargetException, InterruptedException {
 					monitor.setTaskName("Updating System Benchmark\n\n"
 						+ "Benchmarking process may take up to 2 mins. Please wait...");
-			        _model.benchmarkEnvironment();
+			        _model.getEnvironment().measure(true, true, true);
 			        updateView();
 			        monitor.done();
 				}

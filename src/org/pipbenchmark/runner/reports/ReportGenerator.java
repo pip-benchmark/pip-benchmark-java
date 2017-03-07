@@ -1,10 +1,11 @@
 package org.pipbenchmark.runner.reports;
 
 import org.pipbenchmark.*;
-import org.pipbenchmark.runner.*;
-import org.pipbenchmark.runner.benchmarks.BenchmarkInstance;
-import org.pipbenchmark.runner.config.MeasurementType;
-import org.pipbenchmark.runner.results.BenchmarkResult;
+import org.pipbenchmark.runner.benchmarks.*;
+import org.pipbenchmark.runner.config.*;
+import org.pipbenchmark.runner.environment.*;
+import org.pipbenchmark.runner.params.*;
+import org.pipbenchmark.runner.results.*;
 import org.pipbenchmark.util.Formatter;
 
 import java.io.*;
@@ -16,31 +17,51 @@ public class ReportGenerator {
     private final static String SeparatorLine = "***************************************************************\r\n";
     private final static String NewLine = "\r\n";
     
-    private BenchmarkRunner _runner;
+    private ConfigurationManager _configuration;
+    private ResultsManager _results;
+    private ParametersManager _parameters;
+    private BenchmarksManager _benchmarks;
+    private EnvironmentManager _environment;
     
-    public ReportGenerator(BenchmarkRunner runner) {
-        _runner = runner;
-    }
-
-    public BenchmarkRunner getRunner() {
-        return _runner;
+    public ReportGenerator(ConfigurationManager configuration,
+    	ResultsManager results, ParametersManager parameters,
+    	BenchmarksManager benchmarks, EnvironmentManager environment) {
+    	_configuration = configuration;
+    	_results = results;
+    	_parameters = parameters;
+    	_benchmarks = benchmarks;
+    	_environment = environment;
     }
     
-    public String generateReport() {
+    public String generate() {
         StringBuilder builder = new StringBuilder();
         generateHeader(builder);
-        generateTestList(builder);
+        generateBenchmarkList(builder);
 
-        if (getRunner().getExecution().getResults().size() > 1) {
+        if (_results.getAll().size() > 1) {
             generateMultipleResults(builder);
         } else {
             generateSingleResult(builder);
         }
         
-        generateSystemInformation(builder);
+        generateSystemInfo(builder);
         generateSystemBenchmark(builder);
-        generateConfigurationParameters(builder);
+        generateParameters(builder);
         return builder.toString();
+    }
+
+    public void saveToFile(String fileName) throws IOException {
+    	FileOutputStream stream = new FileOutputStream(fileName);
+        try {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
+            try {
+            	writer.write(generate());
+            } finally {
+            	writer.close();
+            }
+        } finally {
+        	stream.close();
+        }
     }
 
     private void generateHeader(StringBuilder builder) {
@@ -58,11 +79,11 @@ public class ReportGenerator {
         builder.append(NewLine);
     }
 
-    private void generateTestList(StringBuilder builder) {
+    private void generateBenchmarkList(StringBuilder builder) {
         builder.append("Executed Benchmarks:");
         builder.append(NewLine);
         int index = 0;
-        for (BenchmarkInstance test : getRunner().getBenchmarks().getSelected()) {
+        for (BenchmarkInstance test : _benchmarks.getSelected()) {
             index++;
             builder.append(String.format("  %d. %s.%s [%d%%]",
                 index, test.getSuite().getName(), test.getName(), test.getProportion()));
@@ -75,7 +96,7 @@ public class ReportGenerator {
         builder.append("Benchmarking Results:");
         builder.append(NewLine);
 
-        List<BenchmarkResult> results = getRunner().getExecution().getResults();
+        List<BenchmarkResult> results = _results.getAll();
         String[][] resultTable = new String[results.size() + 1][4];
 
         // Fill column headers
@@ -139,18 +160,18 @@ public class ReportGenerator {
     }
 
     private void generateSingleResult(StringBuilder builder) {
-        if (getRunner().getExecution().getResults().size() == 0) {
+        if (_results.getAll().size() == 0) {
             return;
         }
-        BenchmarkResult result = getRunner().getExecution().getResults().get(0);
+        BenchmarkResult result = _results.getAll().get(0);
 
         builder.append("Benchmarking Results:");
         builder.append(NewLine);
-        if (getRunner().getConfiguration().getMeasurementType() == MeasurementType.Peak) {
+        if (_configuration.getMeasurementType() == MeasurementType.Peak) {
             builder.append("  Measurement Type: Peak Performance");
         } else {
             builder.append(String.format("  Measurement Type: Nominal Performance at %f tps",
-                getRunner().getConfiguration().getNominalRate()));
+                _configuration.getNominalRate()));
         }
         builder.append(NewLine);
 
@@ -193,10 +214,10 @@ public class ReportGenerator {
         builder.append(NewLine);
     }
 
-    private void generateSystemInformation(StringBuilder builder) {
+    private void generateSystemInfo(StringBuilder builder) {
         builder.append("System Information:");
         builder.append(NewLine);
-        for (Map.Entry<String, String> pair : getRunner().getEnvironment().getSystemInfo().entrySet()) {
+        for (Map.Entry<String, String> pair : _environment.getSystemInfo().entrySet()) {
             builder.append(String.format("  %s: %s", pair.getKey(), pair.getValue()));
             builder.append(NewLine);
         }
@@ -207,40 +228,25 @@ public class ReportGenerator {
         builder.append("System Benchmarking:");
         builder.append(NewLine);
         builder.append(String.format("  CPU Performance (MFLOP/s): %.2f",
-            getRunner().getEnvironment().getCpuBenchmark()));
+            _environment.getCpuMeasurement()));
         builder.append(NewLine);
         builder.append(String.format("  Video Performance (GOP/s): %.2f",
-            getRunner().getEnvironment().getVideoBenchmark()));
+            _environment.getVideoMeasurement()));
         builder.append(NewLine);
         builder.append(String.format("  Disk Performance (MB/s):   %.2f",
-            getRunner().getEnvironment().getDiskBenchmark()));
+            _environment.getDiskMeasurement()));
         builder.append(NewLine);
         builder.append(NewLine);
     }
 
-    private void generateConfigurationParameters(StringBuilder builder) {
+    private void generateParameters(StringBuilder builder) {
         builder.append("Parameters:");
         builder.append(NewLine);
-        for (Parameter parameter : getRunner().getParameters()
-        	.getAll()) {
+        for (Parameter parameter : _parameters.getAll()) {
             builder.append(String.format("  %s=%s", parameter.getName(), parameter.getValue()));
             builder.append(NewLine);
         }
         builder.append(NewLine);
-    }
-
-    public void saveReportToFile(String fileName) throws IOException {
-    	FileOutputStream stream = new FileOutputStream(fileName);
-        try {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(stream));
-            try {
-            	writer.write(generateReport());
-            } finally {
-            	writer.close();
-            }
-        } finally {
-        	stream.close();
-        }
     }
 
 }

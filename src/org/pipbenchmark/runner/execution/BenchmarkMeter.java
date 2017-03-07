@@ -12,7 +12,7 @@ public abstract class BenchmarkMeter {
     private double _numberOfMeasurements;
 
     public BenchmarkMeter() {
-        reset();
+        clear();
     }
 
     public Measurement getMeasurement() {
@@ -60,7 +60,7 @@ public abstract class BenchmarkMeter {
         _averageValue = value;
     }
 
-    public void reset() {
+    public void clear() {
         _lastMeasuredTime = System.currentTimeMillis();
         _currentValue = performMeasurement();
         _minValue = Double.MAX_VALUE;

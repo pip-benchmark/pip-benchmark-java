@@ -6,11 +6,14 @@ import org.pipbenchmark.*;
 import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
 
 class ExecutionContext implements IExecutionContext {
-    private ExecutionStrategy _strategy;
     private BenchmarkSuiteInstance _suite;
+    private ResultAggregator _aggregator;
+    private ExecutionStrategy _strategy;
 
-    public ExecutionContext(ExecutionStrategy strategy, BenchmarkSuiteInstance suite) {
+    public ExecutionContext(BenchmarkSuiteInstance suite,
+    	ResultAggregator aggregator,ExecutionStrategy strategy) {
         _strategy = strategy;
+        _aggregator = aggregator;
         _suite = suite;
     }
     
@@ -19,23 +22,23 @@ class ExecutionContext implements IExecutionContext {
     }
 
     public void incrementCounter() {
-        _strategy.incrementCounter(1);
+        _aggregator.incrementCounter(1);
     }
 
     public void incrementCounter(int increment) {
-        _strategy.incrementCounter(increment);
+        _aggregator.incrementCounter(increment);
     }
 
 	public void sendMessage(String message) {
-		_strategy.sendMessage(message);
+		_aggregator.sendMessage(message);
 	}
 
 	public void reportError(String errorMessage) {
-		_strategy.reportError(errorMessage);
+		_aggregator.reportError(errorMessage);
 	}
 
 	public void stop() {
-        _strategy.getProcess().stop();
+        _strategy.stop();
     }
 
 }
