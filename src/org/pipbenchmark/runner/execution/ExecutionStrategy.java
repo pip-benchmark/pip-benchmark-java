@@ -9,16 +9,18 @@ import org.pipbenchmark.runner.results.*;
 public abstract class ExecutionStrategy {
     protected ConfigurationManager _configuration;
     protected ResultsManager _results;
+    protected ExecutionManager _execution;
     protected final Object _syncRoot = new Object();
     protected List<BenchmarkInstance> _benchmarks;
     protected List<BenchmarkInstance> _activeBenchmarks;
     protected List<BenchmarkSuiteInstance> _suites;
 
-    protected ExecutionStrategy(ConfigurationManager configuration,
-		ResultsManager results, List<BenchmarkInstance> benchmarks) {
+    protected ExecutionStrategy(ConfigurationManager configuration, ResultsManager results, 
+    	ExecutionManager execution, List<BenchmarkInstance> benchmarks) {
         
     	_configuration = configuration;
     	_results = results;
+    	_execution = execution;
     	
         _benchmarks = benchmarks;
         _activeBenchmarks = getActiveBenchmarks(benchmarks);

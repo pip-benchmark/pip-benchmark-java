@@ -13,10 +13,10 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
     private double _ticksPerTransaction = 0;
     private ResultAggregator _aggregator;
 
-    public ProportionalExecutionStrategy(ConfigurationManager configuration,
-		ResultsManager results, List<BenchmarkInstance> benchmarks) {
+    public ProportionalExecutionStrategy(ConfigurationManager configuration, ResultsManager results, 
+    	ExecutionManager execution, List<BenchmarkInstance> benchmarks) {
         
-    	super(configuration, results, benchmarks);
+    	super(configuration, results, execution, benchmarks);
 
         _aggregator = new ResultAggregator(results, benchmarks);
 }
@@ -72,6 +72,9 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
 			        _running = false;
 			        _aggregator.stop();
 			
+			        if (_execution != null)
+			        	_execution.stop();
+			        
 			        // Stop benchmarking threads
 			        if (_threads != null) {
 			            for (int index = 0; index < _threads.length; index++) {
@@ -148,7 +151,7 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
                 }
 
                 if (benchmarkCount == 1) {
-                    firstBenchmark.execute();
+                    executeBenchmark(firstBenchmark);
                     lastExecutedTicks = System.currentTimeMillis();
                     _aggregator.incrementCounter(1, lastExecutedTicks);
                 } else if (benchmarkCount == 0) {

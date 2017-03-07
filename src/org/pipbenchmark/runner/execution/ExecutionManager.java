@@ -12,6 +12,7 @@ public class ExecutionManager {
 	
 	private final Object _syncRoot = new Object();
     private List<IExecutionListener> _updatedListeners = new ArrayList<IExecutionListener>();
+    private boolean _running = false;
     private ExecutionStrategy _strategy = null;
 
     public ExecutionManager(ConfigurationManager configuration, ResultsManager results) {
@@ -20,34 +21,38 @@ public class ExecutionManager {
     }
     
     public boolean isRunning() {
-        return _strategy != null;
+        return _running;
     }
 
     public void start(List<BenchmarkInstance> benchmarks) {
         if (benchmarks == null || benchmarks.size() == 0)
             throw new NullPointerException("There are no benchmarks to execute");
 
-        if (_strategy != null)
-            stop();
+        if (_running) stop();
+        _running = true;
 
         _results.clear();
         notifyUpdated(ExecutionState.Running);
         
         // Create requested execution strategy
         if (_configuration.getExecutionType() == ExecutionType.Sequential)
-            _strategy = new SequencialExecutionStrategy(_configuration, _results, benchmarks);
+            _strategy = new SequencialExecutionStrategy(_configuration, _results, this, benchmarks);
         else
-            _strategy = new ProportionalExecutionStrategy(_configuration, _results, benchmarks);
+            _strategy = new ProportionalExecutionStrategy(_configuration, _results, this, benchmarks);
 
         _strategy.start();
     }
 
     public void stop() {
-        if (_strategy != null) {
+        if (_running) {
         	synchronized (_syncRoot) {
-        		if (_strategy != null) {
-		            _strategy.stop();            
-		            _strategy = null;
+        		if (_running) {
+        			_running = false;
+        			
+        			if (_strategy != null) {
+			            _strategy.stop();            
+			            _strategy = null;
+        			}
 
 	                notifyUpdated(ExecutionState.Completed);
     			}
