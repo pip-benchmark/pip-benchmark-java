@@ -2,8 +2,8 @@ package org.pipbenchmark.gui.shell;
 
 public interface IMainViewListener {
   void loadSuiteClicked();
-  void loadConfigurationClicked();
-  void saveConfigurationClicked();
+  void loadParametersClicked();
+  void saveParametersClicked();
   void printReportClicked();
   void saveReportClicked();
   void startBenchmarkingClicked();

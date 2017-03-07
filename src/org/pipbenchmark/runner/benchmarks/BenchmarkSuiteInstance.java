@@ -27,32 +27,41 @@ public class BenchmarkSuiteInstance {
         return _suite.getDescription();
     }
 
-    public Map<String, Parameter> getParameters() {
-        return _suite.getParameters(); 
+    public List<Parameter> getParameters() {
+        return new ArrayList<Parameter>(_suite.getParameters().values()); 
     }
 
     public List<BenchmarkInstance> getBenchmarks() {
         return _benchmarks;
     }
 
-    public void selectAllBenchmarks() {
+    public List<BenchmarkInstance> getSelected() {
+    	List<BenchmarkInstance> benchmarks = new ArrayList<BenchmarkInstance>();
+        for (BenchmarkInstance benchmark : _benchmarks) {
+        	if (benchmark.isSelected())
+        		benchmarks.add(benchmark);
+        }
+        return benchmarks;
+    }
+
+    public void selectAll() {
         for (BenchmarkInstance benchmark : _benchmarks)
             benchmark.setSelected(true);
     }
 
-    public void selectBenchmark(String benchmarkName) {
+    public void selectByName(String benchmarkName) {
         for (BenchmarkInstance benchmark : _benchmarks) {
             if (benchmark.getName().equals(benchmarkName))
                 benchmark.setSelected(true);
         }
     }
 
-    public void unselectAllBenchmarks() {
+    public void unselectAll() {
         for (BenchmarkInstance benchmark : _benchmarks)
             benchmark.setSelected(false);
     }
 
-    public void unselectBenchmark(String benchmarkName) {
+    public void unselectByName(String benchmarkName) {
         for (BenchmarkInstance benchmark : _benchmarks) {
             if (benchmark.getName().equals(benchmarkName))
                 benchmark.setSelected(false);

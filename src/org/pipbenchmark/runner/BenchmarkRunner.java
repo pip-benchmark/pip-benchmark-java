@@ -2,9 +2,6 @@ package org.pipbenchmark.runner;
 
 import java.util.*;
 
-import org.pipbenchmark.*;
-import org.pipbenchmark.runner.benchmarks.BenchmarkInstance;
-import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
 import org.pipbenchmark.runner.benchmarks.BenchmarksManager;
 import org.pipbenchmark.runner.config.ConfigurationManager;
 import org.pipbenchmark.runner.environment.*;
@@ -32,7 +29,7 @@ public class BenchmarkRunner {
     public BenchmarkRunner() {
     	_configuration = new ConfigurationManager();
         _parameters = new ParametersManager(_configuration);
-        _benchmarks = new BenchmarksManager(this);
+        _benchmarks = new BenchmarksManager(_parameters);
         _execution = new ExecutionManager(_configuration, this);
         _report = new ReportGenerator(this);
         _environment = new EnvironmentManager(this);
@@ -60,51 +57,6 @@ public class BenchmarkRunner {
 
     public EnvironmentManager getEnvironment() {
         return _environment;
-    }
-
-    public List<BenchmarkSuiteInstance> getSuiteInstances() {
-        return getBenchmarks().getSuites();
-    }
-
-    public void addSuiteFromClass(String className)
-    	throws ClassNotFoundException, InstantiationException {
-    	getBenchmarks().addSuiteFromClass(className);
-    }
-
-    public void addSuite(BenchmarkSuite suite) {
-    	getBenchmarks().addSuite(suite);
-    }
-
-    public void addSuite(BenchmarkSuiteInstance suite) {
-    	getBenchmarks().addSuite(suite);
-    }
-    
-    public void loadSuitesFromLibrary(String fileName) throws IOException {
-        getBenchmarks().loadSuitesFromLibrary(fileName);
-    }
-
-    public void unloadSuite(String suiteName) {
-        getBenchmarks().removeSuite(suiteName);
-    }
-
-    public void unloadAllSuites() {
-        getBenchmarks().removeAllSuites();
-    }
-
-    public void unloadSuite(BenchmarkSuiteInstance suite) {
-    	getBenchmarks().removeSuite(suite);
-    }
-
-    public void selectAllBenchmarks() {
-        getBenchmarks().selectAllBenchmarks();
-    }
-
-    public void selectBenchmarksByName(String ...benchmarkNames) {
-       getBenchmarks().selectBenchmarksByName(benchmarkNames);
-    }
-
-    public void selectBenchmarks(BenchmarkInstance ...benchmarks) {
-        getBenchmarks().selectBenchmarks(benchmarks);
     }
 
     public List<BenchmarkResult> getResults() {
@@ -189,7 +141,7 @@ public class BenchmarkRunner {
     }
 
     public Map<String, String> getSystemInformation() {
-        return getEnvironment().getSystemInformation();
+        return getEnvironment().getSystemInfo();
     }
 
     public double getCpuBenchmark() {

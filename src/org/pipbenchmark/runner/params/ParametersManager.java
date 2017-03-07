@@ -84,7 +84,7 @@ public class ParametersManager {
         }
 
         // Create indirect suite parameters
-        for (Parameter originalParameter : suite.getParameters().values()) {
+        for (Parameter originalParameter : suite.getParameters()) {
             Parameter parameter = new BenchmarkSuiteParameter(suite, originalParameter);
             _parameters.add(parameter);
         }

@@ -29,11 +29,11 @@ public class ConsoleRunner {
 
             // Load jars
             for (String library : args.getLibraries()) 
-                runner.loadSuitesFromLibrary(library);
+                runner.getBenchmarks().addSuitesFromLibrary(library);
 
             // Load test suites classes
             for (String className : args.getClasses())
-            	runner.addSuiteFromClass(className);
+            	runner.getBenchmarks().addSuiteFromClass(className);
             
             // Load configuration
             if (args.getConfigurationFile() != null)
@@ -45,10 +45,10 @@ public class ConsoleRunner {
 
             // Select benchmarks
             if (args.getBenchmarks().size() == 0)
-            	runner.selectAllBenchmarks();
+            	runner.getBenchmarks().selectAll();
             else {
             	for (String benchmarkName : args.getBenchmarks())
-            		runner.selectBenchmarksByName(benchmarkName);
+            		runner.getBenchmarks().selectByName(new String[] { benchmarkName });
             }
             
             if (args.isShowParameters()) {
@@ -111,7 +111,7 @@ public class ConsoleRunner {
         System.out.println();
         System.out.println("Loaded Benchmarks:");
 
-        for (BenchmarkSuiteInstance suite : runner.getSuiteInstances()) {
+        for (BenchmarkSuiteInstance suite : runner.getBenchmarks().getSuites()) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
                 System.out.printf("%s - %s\n", benchmark.getFullName(), benchmark.getDescription());
             }

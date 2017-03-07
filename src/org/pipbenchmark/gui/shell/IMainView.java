@@ -13,8 +13,8 @@ public interface IMainView {
     void setStatusMessage(String message);
     void setSelectedView(String viewName);
     
-    IInitializationView getInitializationView();
-    IParametersView getConfigurationView();
+    IBenchmarksView getBenchmarksView();
+    IParametersView getParametersView();
     IExecutionView getExecutionView();
     IResultsView getResultsView();
     IEnvironmentView getEnvironmentView();

@@ -15,8 +15,8 @@ public class MainView implements IMainView {
 	private Shell _shell;
 	private TabFolder _content;
 	private Label _statusLabel;
-	private InitializationView _initializationView;
-	private ParametersView _configurationView;
+	private BenchmarksView _benchmarksView;
+	private ParametersView _parametersView;
 	private ExecutionView _executionView;
 	private ResultsView _resultsView;
 	private EnvironmentView _environmentView;
@@ -54,9 +54,9 @@ public class MainView implements IMainView {
 		Menu fileMenu = new Menu(_shell, SWT.DROP_DOWN);
 		fileMenuItem.setMenu(fileMenu);
 		
-		MenuItem loadTestSuiteMenuItem = new MenuItem(fileMenu, SWT.PUSH);
-		loadTestSuiteMenuItem.setText("&Load Suite...");
-		loadTestSuiteMenuItem.addSelectionListener(new SelectionAdapter() {
+		MenuItem loadSuiteMenuItem = new MenuItem(fileMenu, SWT.PUSH);
+		loadSuiteMenuItem.setText("&Load Suite...");
+		loadSuiteMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent args) {
 				if (_listener != null) {
 					_listener.loadSuiteClicked();
@@ -66,22 +66,22 @@ public class MainView implements IMainView {
 		
 		new MenuItem(fileMenu, SWT.SEPARATOR);
 		
-		MenuItem loadConfigurationMenuItem = new MenuItem(fileMenu, SWT.PUSH);
-		loadConfigurationMenuItem.setText("&Load Configuration...");
-		loadConfigurationMenuItem.addSelectionListener(new SelectionAdapter() {
+		MenuItem loadParametersMenuItem = new MenuItem(fileMenu, SWT.PUSH);
+		loadParametersMenuItem.setText("&Load Parameters...");
+		loadParametersMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent args) {
 				if (_listener != null) {
-					_listener.loadConfigurationClicked();
+					_listener.loadParametersClicked();
 				}
 			}
 		});
 
-		MenuItem saveConfigurationMenuItem = new MenuItem(fileMenu, SWT.PUSH);
-		saveConfigurationMenuItem.setText("&Save Configuration...");
-		saveConfigurationMenuItem.addSelectionListener(new SelectionAdapter() {
+		MenuItem saveParametersMenuItem = new MenuItem(fileMenu, SWT.PUSH);
+		saveParametersMenuItem.setText("&Save Parameters...");
+		saveParametersMenuItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent args) {
 				if (_listener != null) {
-					_listener.saveConfigurationClicked();
+					_listener.saveParametersClicked();
 				}
 			}
 		});
@@ -130,12 +130,12 @@ public class MainView implements IMainView {
 		viewMenuItem.setText("&View");
 		Menu viewMenu = new Menu(_shell, SWT.DROP_DOWN);
 		viewMenuItem.setMenu(viewMenu);
-		MenuItem initializationMenuItem = new MenuItem(viewMenu, SWT.RADIO);
-		initializationMenuItem.setText("&Initialization");
-		initializationMenuItem.addSelectionListener(viewMenuItemSelectioAdapter);
-		MenuItem configurationMenuItem = new MenuItem(viewMenu, SWT.RADIO);
-		configurationMenuItem.setText("&Configuration");
-		configurationMenuItem.addSelectionListener(viewMenuItemSelectioAdapter);
+		MenuItem benchmarksMenuItem = new MenuItem(viewMenu, SWT.RADIO);
+		benchmarksMenuItem.setText("&Benchmarks");
+		benchmarksMenuItem.addSelectionListener(viewMenuItemSelectioAdapter);
+		MenuItem parametersMenuItem = new MenuItem(viewMenu, SWT.RADIO);
+		parametersMenuItem.setText("&Parameters");
+		parametersMenuItem.addSelectionListener(viewMenuItemSelectioAdapter);
 		MenuItem executionMenuItem = new MenuItem(viewMenu, SWT.RADIO);
 		executionMenuItem.setText("&Execution");
 		executionMenuItem.addSelectionListener(viewMenuItemSelectioAdapter);
@@ -198,8 +198,8 @@ public class MainView implements IMainView {
 			}
 		});
 		
-		_viewMenuItems[0] = initializationMenuItem;
-		_viewMenuItems[1] = configurationMenuItem;
+		_viewMenuItems[0] = benchmarksMenuItem;
+		_viewMenuItems[1] = parametersMenuItem;
 		_viewMenuItems[2] = executionMenuItem;
 		_viewMenuItems[3] = resultsMenuItem;
 		_viewMenuItems[4] = environmentMenuItem;
@@ -220,18 +220,18 @@ public class MainView implements IMainView {
 		};
 		_content.addSelectionListener(tabItemSelectionAdapter);
 		
-		TabItem initializationTab = new TabItem(_content, SWT.NONE);
-		initializationTab.setText("&Initialization  ");
-		_initializationView = new InitializationView(_content);
-		initializationTab.setControl(_initializationView);
+		TabItem benchmarksTab = new TabItem(_content, SWT.NONE);
+		benchmarksTab.setText("&Benchmarks  ");
+		_benchmarksView = new BenchmarksView(_content);
+		benchmarksTab.setControl(_benchmarksView);
 		
-		TabItem configurationTab = new TabItem(_content, SWT.NONE);
-		configurationTab.setText("&Configuration  ");
-		_configurationView = new ParametersView(_content);
-		configurationTab.setControl(_configurationView);
+		TabItem parametersTab = new TabItem(_content, SWT.NONE);
+		parametersTab.setText("&Parameters  ");
+		_parametersView = new ParametersView(_content);
+		parametersTab.setControl(_parametersView);
 		
 		TabItem executionTab = new TabItem(_content, SWT.NONE);
-		executionTab.setText("&Execution  ");
+		executionTab.setText("&Measurement  ");
 		_executionView = new ExecutionView(_content);
 		executionTab.setControl(_executionView);
 
@@ -250,8 +250,8 @@ public class MainView implements IMainView {
 		_statusLabel.setLayoutData(data);
 		_statusLabel.setText("...");
 		
-		_viewTabItems[0] = initializationTab;
-		_viewTabItems[1] = configurationTab;
+		_viewTabItems[0] = benchmarksTab;
+		_viewTabItems[1] = parametersTab;
 		_viewTabItems[2] = executionTab;
 		_viewTabItems[3] = resultsTab;
 		_viewTabItems[4] = environmentTab;
@@ -309,12 +309,12 @@ public class MainView implements IMainView {
     	}
     }
     
-    public IInitializationView getInitializationView() {
-    	return _initializationView;
+    public IBenchmarksView getBenchmarksView() {
+    	return _benchmarksView;
     }
     
-    public IParametersView getConfigurationView() {
-    	return _configurationView;
+    public IParametersView getParametersView() {
+    	return _parametersView;
     }
     
     public IExecutionView getExecutionView() {

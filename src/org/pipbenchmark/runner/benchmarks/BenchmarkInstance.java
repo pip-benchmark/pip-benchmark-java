@@ -7,8 +7,8 @@ public class BenchmarkInstance {
     private Benchmark _benchmark;
     private boolean _selected = false;
     private int _proportion = 100;
-    private double _startExecutionTrigger;
-    private double _endExecutionTrigger;
+    private double _startRange;
+    private double _endRange;
 
     public BenchmarkInstance(BenchmarkSuiteInstance suite, Benchmark benchmark) {
         _suite = suite;
@@ -55,24 +55,24 @@ public class BenchmarkInstance {
         _proportion = Math.max(0, Math.min(10000, value));
     }
 
-    public double getStartExecutionTrigger() {
-    	return _startExecutionTrigger;
+    public double getStartRange() {
+    	return _startRange;
     }
     
-    public void setStartExecutionTrigger(double value) {
-    	_startExecutionTrigger = value;
+    public void setStartRange(double value) {
+    	_startRange = value;
     }
     
-    public double getEndExecutionTrigger() {
-    	return _endExecutionTrigger;
+    public double getEndRange() {
+    	return _endRange;
     }
     
-    public void setEndExecutionTrigger(double value) {
-    	_endExecutionTrigger = value;
+    public void setEndRange(double value) {
+    	_endRange = value;
     }
 
-    public boolean isTriggered(double trigger) {
-    	return trigger >= _startExecutionTrigger && trigger < _endExecutionTrigger;
+    public boolean withinRange(double trigger) {
+    	return trigger >= _startRange && trigger < _endRange;
     }
     
     public void setUp(IExecutionContext context) {

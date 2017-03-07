@@ -11,15 +11,15 @@ import org.pipbenchmark.runner.*;
 import org.pipbenchmark.runner.benchmarks.BenchmarkInstance;
 import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
 
-public class InitializationController extends AbstractChildController
-	implements IInitializationViewListener {
+public class BenchmarksController extends AbstractChildController
+	implements IBenchmarksViewListener {
 	
-    private IInitializationView _view;
+    private IBenchmarksView _view;
     private BenchmarkRunner _model;
     private FileDialog _loadSuiteDialog;
 
-    public InitializationController(
-    	MainController mainController, IInitializationView view) {
+    public BenchmarksController(
+    	MainController mainController, IBenchmarksView view) {
     	
         super(mainController);
 
@@ -38,14 +38,14 @@ public class InitializationController extends AbstractChildController
     }
 
     public void updateView() {
-        _view.setAllSuites(_model.getSuiteInstances());
+        _view.setAllSuites(_model.getBenchmarks().getSuites());
         _view.setAllBenchmarks(getAllBenchmarks());
         _view.refreshData();
     }
 
     private List<BenchmarkInstance> getAllBenchmarks() {
         List<BenchmarkInstance> benchmarks = new ArrayList<BenchmarkInstance>();
-        for (BenchmarkSuiteInstance suite : _model.getSuiteInstances()) {
+        for (BenchmarkSuiteInstance suite : _model.getBenchmarks().getSuites()) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
                 benchmarks.add(benchmark);
             }
@@ -57,12 +57,12 @@ public class InitializationController extends AbstractChildController
     	try {
 	    	String fileName = _loadSuiteDialog.open();
 	        if (fileName != null) {
-	            int numberOfSuites = _model.getSuiteInstances().size();
-	            _model.loadSuitesFromLibrary(fileName);
+	            int numberOfSuites = _model.getBenchmarks().getSuites().size();
+	            _model.getBenchmarks().addSuitesFromLibrary(fileName);
 
 	            updateView();
 	
-	            if (numberOfSuites < _model.getSuiteInstances().size())
+	            if (numberOfSuites < _model.getBenchmarks().getSuites().size())
 	                getMainController().setStatusMessage(
 	                	String.format("Loaded suites from %s", fileName));
 	            else
@@ -75,7 +75,7 @@ public class InitializationController extends AbstractChildController
     }
 
     public void unloadAllSuites() {
-        _model.unloadAllSuites();
+        _model.getBenchmarks().clear();
 
         updateView();
         
@@ -87,13 +87,13 @@ public class InitializationController extends AbstractChildController
     }
 
     public void unloadSuiteClicked() {
-        int numberOfSuites = _model.getSuiteInstances().size();
+        int numberOfSuites = _model.getBenchmarks().getSuites().size();
         for (BenchmarkSuiteInstance suite : _view.getSelectedSuites())
-            _model.unloadSuite(suite.getName());
+            _model.getBenchmarks().removeSuite(suite.getName());
 
         updateView();
 
-        if (numberOfSuites > _model.getSuiteInstances().size()) {
+        if (numberOfSuites > _model.getBenchmarks().getSuites().size()) {
             getMainController().setStatusMessage("Unloaded specified suites");
         } else {
             getMainController().setStatusMessage("No suites were unloaded");

@@ -14,8 +14,8 @@ import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
 import org.pipbenchmark.util.Converter;
 import org.eclipse.jface.viewers.*;
 
-public class InitializationView extends Composite implements IInitializationView {
-	private IInitializationViewListener _listener = null;
+public class BenchmarksView extends Composite implements IBenchmarksView {
+	private IBenchmarksViewListener _listener = null;
 	private Table _suitesTable;
 	private TableViewer _suitesTableViewer;
 	private Table _benchmarksTable;
@@ -23,7 +23,7 @@ public class InitializationView extends Composite implements IInitializationView
 	private List<BenchmarkSuiteInstance> _allSuites;
 	private List<BenchmarkInstance> _allBenchmarks;
 	
-	public InitializationView(Composite parent) {
+	public BenchmarksView(Composite parent) {
 		super(parent, SWT.NONE);
 		
 		initializeComponent();
@@ -420,7 +420,7 @@ public class InitializationView extends Composite implements IInitializationView
     	return result;
     }
 
-    public void setListener(IInitializationViewListener listener) {
+    public void setListener(IBenchmarksViewListener listener) {
     	_listener = listener;
     }
     

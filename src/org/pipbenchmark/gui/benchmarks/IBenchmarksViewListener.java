@@ -1,6 +1,6 @@
 package org.pipbenchmark.gui.benchmarks;
 
-public interface IInitializationViewListener {
+public interface IBenchmarksViewListener {
     void suiteSelectedChanged();
     void loadSuiteClicked();
     void unloadSuiteClicked();

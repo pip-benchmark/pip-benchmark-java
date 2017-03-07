@@ -27,8 +27,8 @@ public class EnvironmentManager extends ExecutionManager {
         }
     }
 
-    public Map<String, String> getSystemInformation() {
-        return new SystemInformation();
+    public Map<String, String> getSystemInfo() {
+        return new SystemInfo();
     }
 
     public double getCpuBenchmark() {
@@ -84,8 +84,8 @@ public class EnvironmentManager extends ExecutionManager {
         StandardBenchmarkSuite suite = new StandardBenchmarkSuite();
         BenchmarkSuiteInstance instance = new BenchmarkSuiteInstance(suite);
         
-        instance.unselectAllBenchmarks();
-        instance.selectBenchmark(suite.getCpuBenchmark().getName());
+        instance.unselectAll();
+        instance.selectByName(suite.getCpuBenchmark().getName());
 
         super.start(instance);
         Thread.sleep(Duration);
@@ -98,8 +98,8 @@ public class EnvironmentManager extends ExecutionManager {
         StandardBenchmarkSuite suite = new StandardBenchmarkSuite();
         BenchmarkSuiteInstance instance = new BenchmarkSuiteInstance(suite);
 
-        instance.unselectAllBenchmarks();
-        instance.selectBenchmark(suite.getVideoBenchmark().getName());
+        instance.unselectAll();
+        instance.selectByName(suite.getVideoBenchmark().getName());
 
         super.start(instance);
         Thread.sleep(Duration);
@@ -112,8 +112,8 @@ public class EnvironmentManager extends ExecutionManager {
         StandardBenchmarkSuite suite = new StandardBenchmarkSuite();
         BenchmarkSuiteInstance instance = new BenchmarkSuiteInstance(suite);
 
-        instance.unselectAllBenchmarks();
-        instance.selectBenchmark(suite.getDiskBenchmark().getName());
+        instance.unselectAll();
+        instance.selectByName(suite.getDiskBenchmark().getName());
 
         super.start(instance);
         Thread.sleep(Duration);

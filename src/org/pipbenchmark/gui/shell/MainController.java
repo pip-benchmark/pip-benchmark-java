@@ -13,7 +13,7 @@ import org.pipbenchmark.runner.*;
 public class MainController implements IMainViewListener {
     private IMainView _view;
     private BenchmarkRunner _model;
-    private InitializationController _initializationController;
+    private BenchmarksController _initializationController;
     private ParametersController _configurationController;
     private ExecutionController _executionController;
     private ResultsController _resultsController;
@@ -28,9 +28,8 @@ public class MainController implements IMainViewListener {
     }
 
     private void initializeControllers() {
-        _initializationController = new InitializationController(
-        	this, _view.getInitializationView());
-        _configurationController = new ParametersController(this, _view.getConfigurationView());
+        _initializationController = new BenchmarksController(this, _view.getBenchmarksView());
+        _configurationController = new ParametersController(this, _view.getParametersView());
         _executionController = new ExecutionController(this, _view.getExecutionView());
         _resultsController = new ResultsController(this, _view.getResultsView());
         _environmentController = new EnvironmentController(this, _view.getEnvironmentView());
@@ -44,7 +43,7 @@ public class MainController implements IMainViewListener {
         return _model;
     }
 
-    public InitializationController getInitializationController() {
+    public BenchmarksController getInitializationController() {
         return _initializationController;
     }
 
@@ -79,12 +78,12 @@ public class MainController implements IMainViewListener {
         _resultsController.printReport();
     }
 
-    public void loadConfigurationClicked() {
+    public void loadParametersClicked() {
         _view.setSelectedView("Configuration");
         _configurationController.loadData();
     }
 
-    public void saveConfigurationClicked() {
+    public void saveParametersClicked() {
         _view.setSelectedView("Configuration");
         _configurationController.saveData();
     }

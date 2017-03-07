@@ -4,28 +4,24 @@ import java.util.*;
 import java.util.jar.*;
 
 import org.pipbenchmark.*;
-import org.pipbenchmark.runner.BenchmarkRunner;
+import org.pipbenchmark.runner.params.*;
 
 import java.io.*;
 import java.net.*;
 
 public class BenchmarksManager {
-	private BenchmarkRunner _runner;
+	private ParametersManager _parameters;
     private List<BenchmarkSuiteInstance> _suites = new ArrayList<BenchmarkSuiteInstance>();
 
-    public BenchmarksManager(BenchmarkRunner runner) {
-        _runner = runner;
+    public BenchmarksManager(ParametersManager parameters) {
+    	_parameters = parameters;
     }
 
-    public BenchmarkRunner getRunner() {
-        return _runner;
-    }
- 
     public List<BenchmarkSuiteInstance> getSuites() {
         return _suites;
     }
 
-    public List<BenchmarkInstance> getSelectedBenchmarks() {
+    public List<BenchmarkInstance> getSelected() {
         List<BenchmarkInstance> benchmarks = new ArrayList<BenchmarkInstance>();
 
         for (BenchmarkSuiteInstance suite : _suites) {
@@ -39,14 +35,14 @@ public class BenchmarksManager {
         return benchmarks;
     }
 
-    public void selectAllBenchmarks() {
+    public void selectAll() {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks())
                 benchmark.setSelected(true);
         }
     }
 
-    public void selectBenchmarksByName(String[] benchmarkNames) {
+    public void selectByName(String[] benchmarkNames) {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             	for (String benchmarkName : benchmarkNames) {
@@ -57,7 +53,7 @@ public class BenchmarksManager {
         }
     }
 
-    public void selectBenchmarks(BenchmarkInstance[] benchmarks) {
+    public void select(BenchmarkInstance[] benchmarks) {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             	for (BenchmarkInstance anotherBenchmark : benchmarks) {
@@ -68,14 +64,14 @@ public class BenchmarksManager {
         }
     }
 
-    public void unselectAllBenchmarks() {
+    public void unselectAll() {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks())
                 benchmark.setSelected(false);
         }
     }
 
-    public void unselectBenchmarksByName(String[] benchmarkNames) {
+    public void unselectByName(String[] benchmarkNames) {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             	for (String benchmarkName : benchmarkNames) {
@@ -86,7 +82,7 @@ public class BenchmarksManager {
         }
     }
 
-    public void unselectBenchmarks(BenchmarkInstance[] benchmarks) {
+    public void unselect(BenchmarkInstance[] benchmarks) {
         for (BenchmarkSuiteInstance suite : _suites) {
             for (BenchmarkInstance benchmark : suite.getBenchmarks()) {
             	for (BenchmarkInstance anotherBenchmark : benchmarks) {
@@ -115,14 +111,11 @@ public class BenchmarksManager {
     }
     
     public void addSuite(BenchmarkSuiteInstance suite) {
-        getRunner().getExecution().stop();
     	_suites.add(suite);
-        getRunner().getParameters().addSuite(suite);
+        _parameters.addSuite(suite);
     }
     
-    public void loadSuitesFromLibrary(String fileName) throws IOException {
-        getRunner().getExecution().stop();
-
+    public void addSuitesFromLibrary(String fileName) throws IOException {
         // Load assembly
         URL fileUrl = new URL("jar:file:" + fileName + "!/");
         @SuppressWarnings("resource")
@@ -142,7 +135,7 @@ public class BenchmarksManager {
         				if (BenchmarkSuiteInstance.class.isAssignableFrom(type)) {
         					BenchmarkSuiteInstance suite = (BenchmarkSuiteInstance) type.newInstance();
         					_suites.add(suite);
-        	                getRunner().getParameters().addSuite(suite);
+        	                _parameters.addSuite(suite);
         				}
         			} catch (Exception ex1) {
         				continue;
@@ -154,21 +147,18 @@ public class BenchmarksManager {
         	stream.close();
         }
     }
-
-    private BenchmarkSuiteInstance findSuite(String suiteName) {
-        for (BenchmarkSuiteInstance suite : _suites) {
-            if (suite.getName().equalsIgnoreCase(suiteName)) {
-                return suite;
-            }
-        }
-        return null;
-    }
     
     public void removeSuite(String suiteName) {
-        getRunner().getExecution().stop();
-        BenchmarkSuiteInstance suite = findSuite(suiteName);
+        BenchmarkSuiteInstance suite = null;
+        for (BenchmarkSuiteInstance thisSuite : _suites) {
+            if (thisSuite.getName().equalsIgnoreCase(suiteName)) {
+                suite = thisSuite;
+                break;
+            }
+        }
+
         if (suite != null) {
-            getRunner().getParameters().removeSuite(suite);
+            _parameters.removeSuite(suite);
             _suites.remove(suite);
         }
     }
@@ -183,16 +173,13 @@ public class BenchmarksManager {
     }
     
     public void removeSuite(BenchmarkSuiteInstance suite) {
-        getRunner().getExecution().stop();
-        getRunner().getParameters().removeSuite(suite);
+        _parameters.removeSuite(suite);
     	_suites.remove(suite);
     }
  
-    public void removeAllSuites() {
-        getRunner().getExecution().stop();
-
+    public void clear() {
         for (BenchmarkSuiteInstance suite : _suites)
-            getRunner().getParameters().removeSuite(suite);
+            _parameters.removeSuite(suite);
         
         _suites.clear();
     }

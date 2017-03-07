@@ -62,7 +62,7 @@ public class ReportGenerator {
         builder.append("Executed Benchmarks:");
         builder.append(NewLine);
         int index = 0;
-        for (BenchmarkInstance test : getRunner().getBenchmarks().getSelectedBenchmarks()) {
+        for (BenchmarkInstance test : getRunner().getBenchmarks().getSelected()) {
             index++;
             builder.append(String.format("  %d. %s.%s [%d%%]",
                 index, test.getSuite().getName(), test.getName(), test.getProportion()));
@@ -196,7 +196,7 @@ public class ReportGenerator {
     private void generateSystemInformation(StringBuilder builder) {
         builder.append("System Information:");
         builder.append(NewLine);
-        for (Map.Entry<String, String> pair : getRunner().getEnvironment().getSystemInformation().entrySet()) {
+        for (Map.Entry<String, String> pair : getRunner().getEnvironment().getSystemInfo().entrySet()) {
             builder.append(String.format("  %s: %s", pair.getKey(), pair.getValue()));
             builder.append(NewLine);
         }

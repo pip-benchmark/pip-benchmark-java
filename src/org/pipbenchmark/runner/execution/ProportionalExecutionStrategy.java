@@ -27,12 +27,12 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
         double startExecutionTrigger = 0;
         for (BenchmarkInstance benchmark : getBenchmarks()) {
         	if (benchmark.isPassive()) {
-	            benchmark.setStartExecutionTrigger(0);
-	            benchmark.setEndExecutionTrigger(0);
+	            benchmark.setStartRange(0);
+	            benchmark.setEndRange(0);
         	} else { 
         		double normalizedProportion = ((double)benchmark.getProportion()) / proportionSum;
-	            benchmark.setStartExecutionTrigger(startExecutionTrigger);
-	            benchmark.setEndExecutionTrigger(startExecutionTrigger + normalizedProportion);
+	            benchmark.setStartRange(startExecutionTrigger);
+	            benchmark.setEndRange(startExecutionTrigger + normalizedProportion);
 	            startExecutionTrigger += normalizedProportion;
         	}
         }
@@ -127,7 +127,7 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
                     double selector = randomGenerator.nextDouble();
                     for (int index = 0; index < getBenchmarks().size(); index++) {
                         BenchmarkInstance benchmark = getBenchmarks().get(index);
-                        if (benchmark.isTriggered(selector)) {
+                        if (benchmark.withinRange(selector)) {
                             lastExecutedTicks = System.currentTimeMillis();
                             executeBenchmark(benchmark);
                             incrementCounter(1, lastExecutedTicks);

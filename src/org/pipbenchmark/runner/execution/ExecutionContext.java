@@ -15,7 +15,7 @@ class ExecutionContext implements IExecutionContext {
     }
     
     public Map<String, Parameter> getParameters() {
-    	return _suite.getParameters();
+    	return _suite.getSuite().getParameters();
     }
 
     public void incrementCounter() {

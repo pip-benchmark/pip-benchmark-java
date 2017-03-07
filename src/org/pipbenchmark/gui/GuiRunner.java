@@ -14,12 +14,12 @@ public class GuiRunner {
         try {
             // Load assemblies
             for (String libraryFile : args.getLibraries()) {
-                runner.loadSuitesFromLibrary(libraryFile);
+                runner.getBenchmarks().addSuitesFromLibrary(libraryFile);
             }
 
             // Load test suites classes
             for (String className : args.getClasses()) {
-            	runner.addSuiteFromClass(className);
+            	runner.getBenchmarks().addSuiteFromClass(className);
             }
             
             // Load configuration

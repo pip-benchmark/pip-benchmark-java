@@ -3,10 +3,10 @@ package org.pipbenchmark.runner.environment;
 import java.util.*;
 import java.net.*;
 
-public class SystemInformation extends LinkedHashMap<String, String> {
+public class SystemInfo extends LinkedHashMap<String, String> {
 	private static final long serialVersionUID = -5500217368172807150L;
 
-	public SystemInformation() {
+	public SystemInfo() {
         fillSystemInformation();
     }
 

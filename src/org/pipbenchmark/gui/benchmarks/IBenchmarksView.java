@@ -5,7 +5,7 @@ import java.util.*;
 import org.pipbenchmark.runner.benchmarks.BenchmarkInstance;
 import org.pipbenchmark.runner.benchmarks.BenchmarkSuiteInstance;
 
-public interface IInitializationView {
+public interface IBenchmarksView {
     List<BenchmarkSuiteInstance> getAllSuites();
     void setAllSuites(List<BenchmarkSuiteInstance> value);
     
@@ -16,7 +16,7 @@ public interface IInitializationView {
     
     List<BenchmarkInstance> getSelectedBenchmarks();
 
-    void setListener(IInitializationViewListener listener);
+    void setListener(IBenchmarksViewListener listener);
     
     void refreshData();
 }
