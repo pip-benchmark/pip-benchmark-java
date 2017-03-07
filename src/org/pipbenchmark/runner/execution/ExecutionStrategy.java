@@ -46,6 +46,7 @@ public abstract class ExecutionStrategy {
         return suites;
     }
 
+    public abstract boolean isStopped();
     public abstract void start();
     public abstract void stop();    
 }

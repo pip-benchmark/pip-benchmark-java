@@ -19,8 +19,13 @@ public class ProportionalExecutionStrategy extends ExecutionStrategy {
     	super(configuration, results, execution, benchmarks);
 
         _aggregator = new ResultAggregator(results, benchmarks);
-}
+    }
 
+    @Override
+    public boolean isStopped() {
+    	return !_running;
+    }
+    
     @Override
     public void start() {
     	if (_running) return;

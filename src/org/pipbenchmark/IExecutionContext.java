@@ -11,5 +11,6 @@ public interface IExecutionContext {
     void sendMessage(String message);
     void reportError(String errorMessage);
     
+    boolean isStopped();
     void stop();
 }

@@ -17,6 +17,11 @@ public class SequencialExecutionStrategy extends ExecutionStrategy {
     }
 
     @Override
+    public boolean isStopped() {
+    	return !_running;
+    }
+    
+    @Override
     public void start() {
         if (_configuration.getDuration() <= 0) 
             throw new NullPointerException("Duration was not set");

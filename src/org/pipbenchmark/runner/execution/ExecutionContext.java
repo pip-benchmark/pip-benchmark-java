@@ -37,6 +37,10 @@ class ExecutionContext implements IExecutionContext {
 		_aggregator.reportError(errorMessage);
 	}
 
+	public boolean isStopped() {
+		return _strategy.isStopped();
+	}
+	
 	public void stop() {
         _strategy.stop();
     }
